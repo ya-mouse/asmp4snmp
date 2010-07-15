@@ -10,6 +10,7 @@ static int _tcp_write();
 static int _tcp_read();
 static int _ssl_write();
 static int _ssl_read();
+static int _dsr_asmp_version();
 
 static struct asmp_net_meth tcp_connection = {
     .write = _tcp_write,
@@ -28,6 +29,9 @@ asmp_net_connect(struct asmp_cfg *cfg, const char *host, int port)
     unsigned char ip[4]; 
     unsigned long addr;
     struct sockaddr_in them;
+
+    struct asmp_pdu *pdu;
+    struct asmp_pdu *response = NULL;
     uint8_t req[] = {ASMP_SESSION_SETUP_REQUEST_FIELD_CONN_TYPE, 0, 2, 0,
                      cfg->is_ssl ? ASMP_SESSION_SETUP_SSL_CONNECTION : ASMP_SESSION_SETUP_TCP_CONNECTION,
                      ASMP_FIELD_TERM};
@@ -52,10 +56,14 @@ asmp_net_connect(struct asmp_cfg *cfg, const char *host, int port)
 
     cfg->meth = &tcp_connection;
 
-    if (asmp_request(cfg, ASMP_SESSION_SETUP_REQUEST, sizeof(req), req) != ASMP_SOH) {
+    pdu = asmp_pdu_new(ASMP_SESSION_SETUP_REQUEST, req, sizeof(req));
+    if (asmp_request(cfg, pdu, &response) != 0 || response == NULL) {
+        asmp_pdu_free(pdu);
         close(cfg->tcp_sock);
         return -2;
     }
+    asmp_pdu_free(response);
+    asmp_pdu_free(pdu);
 
     printf("Connection established\n");
     if (cfg->is_ssl) {
@@ -63,8 +71,8 @@ asmp_net_connect(struct asmp_cfg *cfg, const char *host, int port)
         cfg->meth = &ssl_connection;
     }
 
-    //asmp_net_version(&cfg);
-    //status = asmp_net_login(&cfg, NULL, NULL);
+    _dsr_asmp_version(cfg);
+    //status = asmp_net_login(cfg, NULL, NULL);
 
     return 0;
 }
@@ -94,22 +102,70 @@ asmp_select_fd (int fd, double maxtime, int wait_for)
   return result;
 }
 
+struct asmp_pdu *
+asmp_pdu_new(uint8_t cmd, const void *buf, int len)
+{
+    struct asmp_pdu *pdu;
+
+    pdu = malloc(sizeof(struct asmp_pdu));
+    pdu->seq  = 0;
+    pdu->cmd  = cmd;
+    pdu->len  = len;
+    pdu->data = malloc(len);
+    memcpy(pdu->data, buf, len);
+
+    return pdu;
+}
+
+void
+asmp_pdu_free(struct asmp_pdu *pdu)
+{
+    if (pdu == NULL)
+        return;
+    if (pdu->data != NULL)
+        free(pdu->data);
+    free(pdu);
+}
+
+static int
+_dsr_asmp_version(struct asmp_cfg *cfg)
+{
+    int rc;
+    struct asmp_pdu *pdu;
+    struct asmp_pdu *response = NULL;
+    uint8_t req[] = {ASMP_SOH, 0, 3, '3', '.', '0', ASMP_FIELD_TERM};
+
+    pdu = asmp_pdu_new(ASMP_VERSION_REQUEST, req, sizeof(req));
+    if (asmp_request(cfg, pdu, &response) != 0 || response == NULL) {
+        rc = -1;
+        goto free;
+    }
+
+    /* TODO: collect DSR version from response */
+
+    asmp_pdu_free(response);
+
+free:
+    asmp_pdu_free(pdu);
+    return rc;
+}
+
 static int
 _tcp_write(struct asmp_cfg *cfg, const void *buf, int num)
 {
-   return write(cfg->tcp_sock, buf, num);
+    return write(cfg->tcp_sock, buf, num);
 }
 
 static int
 _tcp_read(struct asmp_cfg *cfg, void *buf, int num)
 {
-   return read(cfg->tcp_sock, buf, num);
+    return read(cfg->tcp_sock, buf, num);
 }
 
 static int
 _ssl_write(struct asmp_cfg *cfg, const void *buf, int num)
 {
-   return SSL_write(cfg->ssl_sock, buf, num);
+    return SSL_write(cfg->ssl_sock, buf, num);
 }
 
 static int

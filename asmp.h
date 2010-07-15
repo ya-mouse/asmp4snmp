@@ -6,6 +6,7 @@
 
 #define ASMP_SOH                          0x01
 #define ASMP_SESSION_SETUP_REQUEST        0x30
+#define ASMP_VERSION_REQUEST              0x31
 #define ASMP_SESSION_SETUP_REQUEST_FIELD_CONN_TYPE 0x01
 #define ASMP_SESSION_SETUP_SSL_CONNECTION 0x01
 #define ASMP_SESSION_SETUP_TCP_CONNECTION 0x02
@@ -28,6 +29,13 @@ struct asmp_cfg {
     int      is_ssl;    /* session secured */
     int      is_cert;   /* is secured session use certificate */
     struct asmp_net_meth *meth;
+};
+
+struct asmp_pdu {
+    uint16_t seq;
+    uint8_t  cmd;
+    uint32_t len;
+    uint8_t *data;
 };
 
 #endif

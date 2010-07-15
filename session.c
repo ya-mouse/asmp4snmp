@@ -9,27 +9,71 @@
 #include "session.h"
 
 int
-asmp_request(struct asmp_cfg *cfg, uint8_t cmd, uint32_t len, const uint8_t *data)
+asmp_request(struct asmp_cfg *cfg, const struct asmp_pdu *pdu, struct asmp_pdu **response)
 {
-    uint8_t  resp;
-    uint8_t *req;
-    uint32_t sz;
+    int              rc;
+    uint8_t         *buf;
+    uint32_t         sz;
+    struct asmp_pdu *resp;
+
+    if (cfg->meth == NULL)
+        return -1;
 
     cfg->seq++;
-    sz  = htonl(len);
-    req = calloc(1, 13+len);
-    req[0]  = ASMP_SOH;
-    memcpy(req+1, "ASMP", 4);
-    req[5]  = (cfg->seq >> 8) & 0xff;
-    req[6]  =  cfg->seq & 0xff;
-    req[7]  = cmd;
-    memcpy(req+8, &sz, 4);
-    memcpy(req+12, data, len);
-    req[12+len] = ASMP_TERMINATOR;
-    cfg->meth->write(cfg, req, 13+len);
+    sz  = htonl(pdu->len);
+    buf = calloc(1, 13+pdu->len);
+    buf[0]  = ASMP_SOH;
+    memcpy(buf+1, "ASMP", 4);
+    buf[5]  = (cfg->seq >> 8) & 0xff;
+    buf[6]  =  cfg->seq & 0xff;
+    buf[7]  = pdu->cmd;
+    memcpy(buf+8, &sz, 4);
+    memcpy(buf+12, pdu->data, pdu->len);
+    buf[12+pdu->len] = ASMP_TERMINATOR;
+    cfg->meth->write(cfg, buf, 13+pdu->len);
 
-    cfg->meth->read(cfg, &resp, 1);
-    printf("Resp: %x\n", resp);
+    cfg->meth->read(cfg, buf, 1);
+    if (*buf != ASMP_SOH) {
+        fprintf(stderr, "Wrong response: [%02x]\n", *buf);
+        rc = -1;
+        goto free;
+    }
+    cfg->meth->read(cfg, buf, 4);
+    if (strncmp((char *)buf, "ASMP", 4)) {
+        fprintf(stderr, "Wrong response: [%02x]\n", *buf);
+        rc = -1;
+        goto free;
+    }
 
-    return resp;
+    resp = malloc(sizeof(struct asmp_pdu));
+    cfg->meth->read(cfg, &resp->seq, 2);
+    cfg->meth->read(cfg, &resp->cmd, 1);
+    cfg->meth->read(cfg, &resp->len, 4);
+    resp->seq = ntohs(resp->seq);
+    resp->len = ntohl(resp->len);
+    printf("[%02x][%x][%04x]\n", resp->seq, resp->cmd, resp->len);
+    if (resp->len > 0x40000) {
+        fprintf(stderr, "ASMP LENGTH TOO BIG (%08x)\n", resp->len);
+        rc = -2;
+        goto free_resp;
+    }
+    resp->data = malloc(resp->len);
+    cfg->meth->read(cfg, resp->data, resp->len);
+    cfg->meth->read(cfg, buf, 1);
+    if (*buf != ASMP_TERMINATOR) {
+        fprintf(stderr, "Invalid terminator (%x)\n", *buf);
+        rc = -2;
+        goto free_resp;
+    }
+
+    *response = resp;
+    rc = 0;
+    goto free;
+
+free_resp:
+    free(resp);
+
+free:
+    free(buf);
+    return rc;
 }
