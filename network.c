@@ -25,7 +25,7 @@ static struct asmp_net_meth ssl_connection = {
 int
 asmp_net_connect(struct asmp_cfg *cfg, const char *host, int port)
 {
-    //int status;
+    int status;
     unsigned char ip[4]; 
     unsigned long addr;
     struct sockaddr_in them;
@@ -37,7 +37,6 @@ asmp_net_connect(struct asmp_cfg *cfg, const char *host, int port)
                      ASMP_FIELD_TERM};
 
     memset(ip, 0, sizeof(ip));
-    printf("Host: [%s]\n", host);
     BIO_get_host_ip(host, &(ip[0]));
     addr = (unsigned long)
             ((unsigned long)ip[0]<<24L)|
@@ -65,16 +64,54 @@ asmp_net_connect(struct asmp_cfg *cfg, const char *host, int port)
     asmp_pdu_free(response);
     asmp_pdu_free(pdu);
 
-    printf("Connection established\n");
     if (cfg->is_ssl) {
         // Establish SSL connection
         cfg->meth = &ssl_connection;
     }
 
-    _dsr_asmp_version(cfg);
-    //status = asmp_net_login(cfg, NULL, NULL);
+    status = _dsr_asmp_version(cfg);
+    status = asmp_net_login(cfg, NULL, NULL);
 
     return 0;
+}
+
+int
+asmp_net_login(struct asmp_cfg *cfg, const char *user, const char *passwd)
+{
+    int rc;
+    int u_len;
+    int p_len;
+    struct asmp_pdu *pdu;
+    struct asmp_pdu *response = NULL;
+    uint8_t *req;
+
+    u_len =   user == NULL ? 0 : strlen(user);
+    p_len = passwd == NULL ? 0 : strlen(passwd);
+
+    req = malloc(1+2+2+1+u_len+p_len);
+    req[0] = ASMP_SOH;
+    req[1] = (u_len >> 8) & 0xff;
+    req[2] =  u_len & 0xff;
+    if (u_len != 0)
+        memcpy(req+2,       user,   u_len);
+    req[3+u_len] = (p_len >> 8) & 0xff;
+    req[4+u_len] =  p_len & 0xff;
+    if (p_len != 0)
+        memcpy(req+5+u_len, passwd, p_len);
+    req[5+u_len+p_len] = ASMP_FIELD_TERM;
+
+    pdu = asmp_pdu_new(ASMP_LOGIN_REQUEST, req, sizeof(req));
+    if (asmp_request(cfg, pdu, &response) != 0 || response == NULL) {
+        rc = -1;
+        goto free;
+    }
+
+    asmp_pdu_free(response);
+    rc = 0;
+
+free:
+    asmp_pdu_free(pdu);
+    return rc;
 }
 
 int
@@ -144,6 +181,7 @@ _dsr_asmp_version(struct asmp_cfg *cfg)
     /* TODO: collect DSR version from response */
 
     asmp_pdu_free(response);
+    rc = 0;
 
 free:
     asmp_pdu_free(pdu);

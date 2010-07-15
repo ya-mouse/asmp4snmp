@@ -5,6 +5,7 @@
 #include <openssl/ssl.h>
 
 #define ASMP_SOH                          0x01
+#define ASMP_LOGIN_REQUEST                0x01
 #define ASMP_SESSION_SETUP_REQUEST        0x30
 #define ASMP_VERSION_REQUEST              0x31
 #define ASMP_SESSION_SETUP_REQUEST_FIELD_CONN_TYPE 0x01

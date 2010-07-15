@@ -24,13 +24,12 @@ main(int argc, char *argv[])
 
     cfg.timeout = 5000;
     status = asmp_net_connect(&cfg, argv[1], 3211);
-    if (cfg.tcp_sock < 0) {
-        return -1;
-    }
     if (status != 0) {
-        close(cfg.tcp_sock);
-        return 2;
+        fprintf(stderr, "Connection to %s:%d failed\n", argv[1], 3211);
+        goto close;
     }
+
+close:
     close(cfg.tcp_sock);
-    return 0;
+    return status;
 }
