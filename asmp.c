@@ -29,6 +29,8 @@ main(int argc, char *argv[])
         goto close;
     }
 
+    asmp_net_logout(&cfg);
+
 close:
     close(cfg.tcp_sock);
     return status;

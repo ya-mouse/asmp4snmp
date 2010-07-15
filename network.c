@@ -115,6 +115,28 @@ free:
 }
 
 int
+asmp_net_logout(struct asmp_cfg *cfg)
+{
+    int rc;
+    struct asmp_pdu *pdu;
+    struct asmp_pdu *response = NULL;
+    uint8_t req[] = {ASMP_FIELD_TERM};
+
+    pdu = asmp_pdu_new(ASMP_LOGOUT_REQUEST, req, sizeof(req));
+    if (asmp_request(cfg, pdu, &response) != 0 || response == NULL) {
+        rc = -1;
+        goto free;
+    }
+
+    asmp_pdu_free(response);
+    rc = 0;
+
+free:
+    asmp_pdu_free(pdu);
+    return rc;
+}
+
+int
 asmp_select_fd (int fd, double maxtime, int wait_for)
 {
   fd_set fdset;
