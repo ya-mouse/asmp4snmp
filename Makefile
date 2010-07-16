@@ -1,7 +1,7 @@
 OBJ = network.o session.o asmp.o
 
 CFLAGS = -Wall -g
-LIBS   = -lssl
+LIBS   = -lssl -lsnmp
 
 %.o: %.c
 	$(CC) -c $(CFLAGS) $<

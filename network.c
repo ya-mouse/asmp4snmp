@@ -33,8 +33,8 @@ asmp_net_connect(struct asmp_cfg *cfg)
 
     struct asmp_pdu *pdu;
     struct asmp_pdu *response = NULL;
-    uint8_t req[] = {ASMP_SESSION_SETUP_REQUEST_FIELD_CONN_TYPE, 0, 2, 0,
-                     cfg->is_ssl ? ASMP_SESSION_SETUP_SSL_CONNECTION : ASMP_SESSION_SETUP_TCP_CONNECTION,
+    uint8_t req[] = {ASMP_SOH, 0, 2,
+                     0, cfg->is_ssl ? ASMP_SESSION_SETUP_SSL_CONNECTION : ASMP_SESSION_SETUP_TCP_CONNECTION,
                      ASMP_FIELD_TERM};
 
     memset(ip, 0, sizeof(ip));
@@ -87,19 +87,20 @@ asmp_net_login(struct asmp_cfg *cfg, const char *user, const char *passwd)
     u_len =   user == NULL ? 0 : strlen(user);
     p_len = passwd == NULL ? 0 : strlen(passwd);
 
-    req = malloc(1+2+2+1+u_len+p_len);
+    req = malloc(1+3+2+1+u_len+p_len);
     req[0] = ASMP_SOH;
     req[1] = (u_len >> 8) & 0xff;
     req[2] =  u_len & 0xff;
     if (u_len != 0)
         memcpy(req+2,       user,   u_len);
-    req[3+u_len] = (p_len >> 8) & 0xff;
-    req[4+u_len] =  p_len & 0xff;
+    req[3+u_len] = 2;
+    req[4+u_len] = (p_len >> 8) & 0xff;
+    req[5+u_len] =  p_len & 0xff;
     if (p_len != 0)
-        memcpy(req+5+u_len, passwd, p_len);
-    req[5+u_len+p_len] = ASMP_FIELD_TERM;
+        memcpy(req+6+u_len, passwd, p_len);
+    req[6+u_len+p_len] = ASMP_FIELD_TERM;
 
-    pdu = asmp_pdu_new(ASMP_LOGIN_REQUEST, req, sizeof(req));
+    pdu = asmp_pdu_new(ASMP_LOGIN_REQUEST, req, 7+u_len+p_len);
     if (asmp_request(cfg, pdu, &response) != 0 || response == NULL) {
         rc = -1;
         goto free;
@@ -110,6 +111,8 @@ asmp_net_login(struct asmp_cfg *cfg, const char *user, const char *passwd)
 
 free:
     asmp_pdu_free(pdu);
+    free(req);
+
     return rc;
 }
 
@@ -206,6 +209,7 @@ _dsr_asmp_version(struct asmp_cfg *cfg)
 
 free:
     asmp_pdu_free(pdu);
+
     return rc;
 }
 
@@ -253,7 +257,6 @@ _setup_ssl(struct asmp_cfg *cfg)
 
     cfg->meth = &ssl_connection;
     rc = 0;
-    printf("SSL Connection established\n");
 
 exit:
     return rc;
