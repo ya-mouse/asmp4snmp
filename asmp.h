@@ -3,6 +3,9 @@
 
 #include <openssl/ssl.h>
 
+#include <net-snmp/net-snmp-config.h>
+#include <net-snmp/net-snmp-includes.h>
+
 #define ASMP_SOH                          0x01
 #define ASMP_LOGIN_REQUEST                0x01
 #define ASMP_LOGOUT_REQUEST               0x02

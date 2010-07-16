@@ -31,7 +31,7 @@ asmp_request(struct asmp_cfg *cfg, const struct asmp_pdu *pdu, struct asmp_pdu *
     memcpy(buf+12, pdu->data, pdu->len);
     buf[12+pdu->len] = ASMP_TERMINATOR;
 
-    xdump(pdu->data, pdu->len, ">> ");
+//    xdump(pdu->data, pdu->len, ">> ");
 
     cfg->meth->write(cfg, buf, 13+pdu->len);
 
@@ -54,7 +54,7 @@ asmp_request(struct asmp_cfg *cfg, const struct asmp_pdu *pdu, struct asmp_pdu *
     cfg->meth->read(cfg, &resp->len, 4);
     resp->seq = ntohs(resp->seq);
     resp->len = ntohl(resp->len);
-    printf("[%02x][%02x][%04x]\n", resp->seq, resp->cmd, resp->len);
+    DEBUGMSGTL(("asmp", "[%02x][%02x][%04x]\n", resp->seq, resp->cmd, resp->len));
     if (resp->len > 0x40000) {
         fprintf(stderr, "ASMP LENGTH TOO BIG (%08x)\n", resp->len);
         rc = -2;

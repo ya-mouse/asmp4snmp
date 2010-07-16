@@ -5,8 +5,6 @@
 #include <unistd.h>
 
 #include <openssl/rand.h>
-#include <net-snmp/net-snmp-config.h>
-#include <net-snmp/net-snmp-includes.h>
 
 #include "asmp.h"
 #include "network.h"
@@ -18,9 +16,10 @@ int
 main(int argc, char *argv[])
 {
     int    status;
+    int    name_len;
     struct asmp_cfg cfg;
-    //oid    name[] = { 1, 3, 6, 1, 4, 1, 10418, 7, 2 };
-    oid    name[] = { 1,3,6,1,4,1,10418,7,2,1,5};
+    oid    name_root[] = { 1, 3, 6, 1, 4, 1, 10418, 7, 2 };
+    oid    name[MAX_OID_LEN];
 
     if (argc < 2)
         return 1;
@@ -45,7 +44,14 @@ main(int argc, char *argv[])
         goto close;
     }
 
-    _walk(&cfg, name, sizeof(name)/sizeof(name[0]));
+    name_len = sizeof(name_root)/sizeof(name_root[0]);
+    memcpy(name, name_root, sizeof(name_root));
+    int i = 0;
+    while (!_walk(&cfg, name, &name_len)) {
+      i++;
+      if (i == 184)
+        break;
+    }
 
     asmp_net_logout(&cfg);
 
@@ -55,7 +61,7 @@ close:
 }
 
 static int
-_walk(struct asmp_cfg *cfg, int *oid, int oid_len)
+_walk(struct asmp_cfg *cfg, int *oid, int *oid_len)
 {
     int i;
     int rc;
@@ -67,20 +73,23 @@ _walk(struct asmp_cfg *cfg, int *oid, int oid_len)
     len = 0;
     req = malloc(512);
     req[len++] = ASMP_SOH;
-    req[len++] = ((3+oid_len*4+3) >> 8) & 0xff;
-    req[len++] =  (3+oid_len*4+3) & 0xff;
+    req[len++] = ((3+*oid_len*4+3) >> 8) & 0xff;
+    req[len++] =  (3+*oid_len*4+3) & 0xff;
 
     // AIDP VarBind
     req[len++] = 6;
-    req[len++] = ((oid_len*4) >> 8) & 0xff;
-    req[len++] =  (oid_len*4) & 0xff;
+    req[len++] = ((*oid_len*4) >> 8) & 0xff;
+    req[len++] =  (*oid_len*4) & 0xff;
 
-    for (i = 0; i<oid_len; i++) {
+    printf("Requesting OID: ");
+    for (i = 0; i<*oid_len; i++) {
         req[len++] = (oid[i] >> 24) & 0xff;
         req[len++] = (oid[i] >> 16) & 0xff;
         req[len++] = (oid[i] >>  8) & 0xff;
         req[len++] =  oid[i] & 0xff;
+        printf(".%d", oid[i]);
     }
+    printf("\n");
     // ASN_NULL value
     req[len++] = ASN_NULL;
     req[len++] = 0;
@@ -95,10 +104,34 @@ _walk(struct asmp_cfg *cfg, int *oid, int oid_len)
         goto free;
     }
 
-    asmp_pdu_free(response);
+    /* MIB_END */
+    if (response->data[4] == 6 && response->data[9] == 1) {
+        rc = 1;
+        goto free_resp;
+    }
+
+    if (response->data[10] == 3 && response->data[13] == 6) {
+        *oid_len = ((response->data[14] << 8) | response->data[15]) / 4;
+        printf("OID detected: ");
+        len = 16;
+        for (i=0; i<*oid_len; i++) {
+            oid[i] = (response->data[len] << 24) |
+                     (response->data[len+1] << 16) |
+                     (response->data[len+2] <<  8) |
+                      response->data[len+3];
+            len += 4;
+            printf(".%d", oid[i]);
+        }
+        printf("\n");
+    }
+
     rc = 0;
+
+free_resp:
+    asmp_pdu_free(response);
 
 free:
     asmp_pdu_free(pdu);
+
     return rc;
 }
