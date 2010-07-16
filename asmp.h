@@ -26,11 +26,15 @@ struct asmp_cfg {
     int      tcp_sock;
     SSL     *ssl_sock;
     SSL_CTX *ssl_ctx;
+    struct asmp_net_meth *meth;
+
+    char    *host;      /* hostname */
+    uint16_t port;      /* port */
     int      timeout;   /* network timeout */
+
     uint32_t seq;       /* sequence */
     int      is_ssl;    /* session secured */
     int      is_cert;   /* is secured session use certificate */
-    struct asmp_net_meth *meth;
 };
 
 struct asmp_pdu {

@@ -11,6 +11,7 @@ static int _tcp_read();
 static int _ssl_write();
 static int _ssl_read();
 static int _dsr_asmp_version();
+static int _setup_ssl();
 
 static struct asmp_net_meth tcp_connection = {
     .write = _tcp_write,
@@ -23,7 +24,7 @@ static struct asmp_net_meth ssl_connection = {
 };
 
 int
-asmp_net_connect(struct asmp_cfg *cfg, const char *host, int port)
+asmp_net_connect(struct asmp_cfg *cfg)
 {
     int status;
     unsigned char ip[4]; 
@@ -37,7 +38,7 @@ asmp_net_connect(struct asmp_cfg *cfg, const char *host, int port)
                      ASMP_FIELD_TERM};
 
     memset(ip, 0, sizeof(ip));
-    BIO_get_host_ip(host, &(ip[0]));
+    BIO_get_host_ip(cfg->host, &(ip[0]));
     addr = (unsigned long)
             ((unsigned long)ip[0]<<24L)|
             ((unsigned long)ip[1]<<16L)|
@@ -46,7 +47,7 @@ asmp_net_connect(struct asmp_cfg *cfg, const char *host, int port)
 
     memset(&them, 0, sizeof(them));
     them.sin_family = AF_INET;
-    them.sin_port   = htons((unsigned short)port);
+    them.sin_port   = htons(cfg->port);
     them.sin_addr.s_addr = htonl(addr);
 
     cfg->tcp_sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -64,15 +65,13 @@ asmp_net_connect(struct asmp_cfg *cfg, const char *host, int port)
     asmp_pdu_free(response);
     asmp_pdu_free(pdu);
 
-    if (cfg->is_ssl) {
-        // Establish SSL connection
-        cfg->meth = &ssl_connection;
-    }
+    if (cfg->is_ssl)
+        status = _setup_ssl(cfg);
 
     status = _dsr_asmp_version(cfg);
     status = asmp_net_login(cfg, NULL, NULL);
 
-    return 0;
+    return status;
 }
 
 int
@@ -207,6 +206,56 @@ _dsr_asmp_version(struct asmp_cfg *cfg)
 
 free:
     asmp_pdu_free(pdu);
+    return rc;
+}
+
+static int
+_setup_ssl(struct asmp_cfg *cfg)
+{
+    int rc = -1;
+
+    cfg->ssl_ctx = SSL_CTX_new(SSLv23_client_method());
+    if (cfg->ssl_ctx == NULL) {
+        fprintf(stderr, "asmp_net_connect: Couldn't create SSL context\n");
+        goto exit;
+    }
+    SSL_CTX_set_default_verify_paths(cfg->ssl_ctx);
+
+    /* SSL_VERIFY_NONE instructs OpenSSL not to abort SSL_connect if the
+       certificate is invalid.  We verify the certificate separately in
+       ssl_check_certificate, which provides much better diagnostics
+       than examining the error stack after a failed SSL_connect.  */
+    SSL_CTX_set_verify (cfg->ssl_ctx, SSL_VERIFY_NONE, NULL);
+
+    /* Since fd_write unconditionally assumes partial writes (and
+       handles them correctly), allow them in OpenSSL.  */
+    SSL_CTX_set_mode(cfg->ssl_ctx, SSL_MODE_ENABLE_PARTIAL_WRITE);
+
+    /* The OpenSSL library can handle renegotiations automatically, so
+       tell it to do so.  */
+    SSL_CTX_set_mode(cfg->ssl_ctx, SSL_MODE_AUTO_RETRY);
+
+    cfg->ssl_sock = SSL_new(cfg->ssl_ctx);
+    if (cfg->ssl_sock == NULL) {
+        fprintf(stderr, "asmp_net_connect: Coulnd't create SSL\n");
+        goto exit;
+    }
+
+    SSL_set_fd(cfg->ssl_sock, cfg->tcp_sock);
+    SSL_set_connect_state(cfg->ssl_sock);
+
+    if (SSL_connect(cfg->ssl_sock) <= 0 || cfg->ssl_sock->state != SSL_ST_OK) {
+        fprintf(stderr,
+                "asmp_net_connect: Coulnd't establish SSL connection with `%s' host\n",
+                cfg->host);
+            goto exit;
+    }
+
+    cfg->meth = &ssl_connection;
+    rc = 0;
+    printf("SSL Connection established\n");
+
+exit:
     return rc;
 }
 
