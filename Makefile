@@ -16,7 +16,7 @@ libsnmphook.so: $(OBJH)
 	$(CC) -o $@ $^ -shared -Wl,-soname,libsnmphook.so -ldl -lsnmp
 
 test: libsnmphook.so
-	LD_PRELOAD=$(PWD)/libsnmphook.so snmpget -v 1 -c public localhost 1.3.6.1 -On -d
+	LD_PRELOAD=$(PWD)/libsnmphook.so snmpget -v3 asmp:localhost 1.3.6.1 -On -d -Dtdomain -Dnetsnmp_sockaddr_in
 
 clean:
 	@rm -f asmp libasmphook.so asmphook.o $(OBJ)
