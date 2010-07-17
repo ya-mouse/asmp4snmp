@@ -3,59 +3,15 @@
 #include <dlfcn.h>
 #undef  __USE_GNU
 
-#define SNMP_NEED_REQUEST_LIST
 #include "asmp.h"
 
 void netsnmp_asmp_ctor();
-
-/*                             Part of snmp_api.c
- * ============================================================================
- */
-
-/*
- * Internal information about the state of the snmp session.
- */
-struct snmp_internal_session {
-    netsnmp_request_list *requests;     /* Info about outstanding requests */
-    netsnmp_request_list *requestsEnd;  /* ptr to end of list */
-    int             (*hook_pre) (netsnmp_session *, netsnmp_transport *,
-                                 void *, int);
-    int             (*hook_parse) (netsnmp_session *, netsnmp_pdu *,
-                                   u_char *, size_t);
-    int             (*hook_post) (netsnmp_session *, netsnmp_pdu *, int);
-    int             (*hook_build) (netsnmp_session *, netsnmp_pdu *,
-                                   u_char *, size_t *);
-    int             (*hook_realloc_build) (netsnmp_session *,
-                                           netsnmp_pdu *, u_char **,
-                                           size_t *, size_t *);
-    int             (*check_packet) (u_char *, size_t);
-    netsnmp_pdu    *(*hook_create_pdu) (netsnmp_transport *,
-                                        void *, size_t);
-
-    u_char         *packet;
-    size_t          packet_len, packet_size;
-};
-
-struct session_list {
-    struct session_list *next;
-    netsnmp_session *session;
-    netsnmp_transport *transport;
-    struct snmp_internal_session *internal;
-};
-
-int             snmp_build(u_char ** pkt, size_t * pkt_len,
-                           size_t * offset, netsnmp_session * pss,
-                           netsnmp_pdu *pdu);
-
-/* ============================================================================
- *                        End of Part of snmp_api.c
- */
 
 static netsnmp_session * (*next_snmp_open)(netsnmp_session *session) = NULL;
 
 static int
 _hook_parse(netsnmp_session * sp, netsnmp_pdu * pdu,
-                                   u_char * pkt, size_t len)
+            u_char * pkt, size_t len)
 {
     fprintf(stderr, "_hook_parse called\n");
     return -1;
@@ -63,7 +19,7 @@ _hook_parse(netsnmp_session * sp, netsnmp_pdu * pdu,
 
 static int
 _hook_build(netsnmp_session * sp,
-                            netsnmp_pdu *pdu, u_char * pkt, size_t * len)
+            netsnmp_pdu *pdu, u_char * pkt, size_t * len)
 {
     int rc;
     size_t offset = 0;
@@ -80,8 +36,8 @@ _hook_build(netsnmp_session * sp,
 netsnmp_session *
 snmp_open(netsnmp_session *in_session)
 {
-    struct session_list *slp;
-    netsnmp_session *session;
+    netsnmp_session   *session;
+    netsnmp_transport *transport;
 
     fprintf(stderr, "Hooked snmp_open called\n");
     if (next_snmp_open == NULL) {
@@ -98,17 +54,42 @@ snmp_open(netsnmp_session *in_session)
         netsnmp_asmp_ctor();
     }
 
-    session = next_snmp_open(in_session);
-    if (session == NULL)
+    if (in_session == NULL)
         return NULL;
 
-    slp = (struct session_list *) snmp_sess_pointer(session);
-    if (slp == NULL)
-        return NULL;
+    if (in_session->version == SNMP_VERSION_3 &&
+        (!strncmp(in_session->peername, "asmp:", 5) ||
+         !strncmp(in_session->peername, "asmps:", 6) ||
+         !strncmp(in_session->peername, "aidp:", 5)))
+    {
+        /* Set TCP flag for non-AIDP connection */
+        if (strncmp(in_session->peername, "aidp:", 5))
+            in_session->flags |= SNMP_FLAGS_STREAM_SOCKET;
 
-    slp->internal->hook_build = _hook_build;
-    slp->internal->hook_parse = _hook_parse;
-    fprintf(stderr, "Hook installed\n");
+        if (in_session->flags & SNMP_FLAGS_STREAM_SOCKET) {
+            transport =
+                netsnmp_tdomain_transport_full("snmp", in_session->peername,
+                                               session->local_port, "tcp",
+                                               NULL);
+        } else {
+            transport =
+                netsnmp_tdomain_transport_full("snmp", in_session->peername,
+                                               session->local_port, "udp",
+                                               NULL);
+        }
+
+        session = snmp_add_full(in_session,
+                            transport,
+                            NULL, _hook_parse,
+                            NULL, _hook_build,
+                            NULL, NULL,
+                            NULL);
+        if (session != NULL)
+            fprintf(stderr, "Hook installed\n");
+    } else {
+        session = next_snmp_open(in_session);
+        fprintf(stderr, "SNMPv is not 3. Hook NOT installed\n");
+    }
 
     return session;
 }
