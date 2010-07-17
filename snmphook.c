@@ -6,6 +6,8 @@
 #define SNMP_NEED_REQUEST_LIST
 #include "asmp.h"
 
+void netsnmp_asmp_ctor();
+
 /*                             Part of snmp_api.c
  * ============================================================================
  */
@@ -52,13 +54,22 @@ int             snmp_build(u_char ** pkt, size_t * pkt_len,
 static netsnmp_session * (*next_snmp_open)(netsnmp_session *session) = NULL;
 
 static int
+_hook_parse(netsnmp_session * sp, netsnmp_pdu * pdu,
+                                   u_char * pkt, size_t len)
+{
+    fprintf(stderr, "_hook_parse called\n");
+    return -1;
+}
+
+static int
 _hook_build(netsnmp_session * sp,
                             netsnmp_pdu *pdu, u_char * pkt, size_t * len)
 {
+    int rc;
     size_t offset = 0;
-    fprintf(stderr, "_hook_build called: %d\n", *len);
-    int rc = snmp_build(&pkt, len, &offset, sp, pdu);
-    fprintf(stderr, "_hook_build offset=%d %d\n", offset, *len);
+
+    fprintf(stderr, "_hook_build called\n");
+    rc = snmp_build(&pkt, len, &offset, sp, pdu);
     if (rc >= 0) {
         memcpy(pkt, pkt+(*len)-offset, *len);
         *len = offset;
@@ -73,26 +84,30 @@ snmp_open(netsnmp_session *in_session)
     netsnmp_session *session;
 
     fprintf(stderr, "Hooked snmp_open called\n");
-    if (next_snmp_open == NULL)
-    {
-      char *msg;
+    if (next_snmp_open == NULL) {
+        char *msg;
 
-      next_snmp_open = dlsym(RTLD_NEXT, "snmp_open");
-      if ((msg = dlerror()) != NULL)
-      {
-         fprintf(stderr, "snmp_open: dlopen failed : %s\n", msg);
-         fflush(stderr);
-         exit(1);
-      }
+        next_snmp_open = dlsym(RTLD_NEXT, "snmp_open");
+        if ((msg = dlerror()) != NULL) {
+            fprintf(stderr, "snmp_open: dlopen failed : %s\n", msg);
+            fflush(stderr);
+            return NULL;
+        }
+
+        /* Register ASMP Domains */
+        netsnmp_asmp_ctor();
     }
 
-    if ((session = next_snmp_open(in_session)) == NULL)
+    session = next_snmp_open(in_session);
+    if (session == NULL)
         return NULL;
 
-    if ((slp = (struct session_list *) snmp_sess_pointer(session)) == NULL)
+    slp = (struct session_list *) snmp_sess_pointer(session);
+    if (slp == NULL)
         return NULL;
 
     slp->internal->hook_build = _hook_build;
+    slp->internal->hook_parse = _hook_parse;
     fprintf(stderr, "Hook installed\n");
 
     return session;
