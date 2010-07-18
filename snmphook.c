@@ -6,8 +6,6 @@
 #include "asmp.h"
 #include "session.h"
 
-void netsnmp_asmp_ctor();
-
 static netsnmp_session * (*next_snmp_open)(netsnmp_session *session) = NULL;
 
 netsnmp_session *
@@ -28,9 +26,10 @@ snmp_open(netsnmp_session *in_session)
 
         /* Register ASMP Domains */
         netsnmp_asmp_ctor();
+        netsnmp_aidp_ctor();
     }
 
-    session = asmp_session(in_session);
+    session = asmp_open(in_session);
     if (session == NULL)
         session = next_snmp_open(in_session);
 
