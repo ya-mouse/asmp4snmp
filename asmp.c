@@ -18,7 +18,10 @@ main(int argc, char *argv[])
     int    status;
     int    name_len;
     struct asmp_cfg cfg;
-    oid    name_root[] = { 1, 3, 6, 1, 4, 1, 10418, 7, 2 };
+    //oid    name_root[] = { 1, 3, 6, 1, 4, 1, 10418, 7, 1, 23 };
+    //oid    name_root[] = { 1, 3, 6, 1, 4, 1, 10418, 7, 2 };
+    //oid    name_root[] = { 1, 3, 6, 1, 4, 1, 10418, 7, 2, 10, 5, 1, 1 };
+    oid    name_root[] = { 1, 3, 6, 1, 4, 1, 10418, 7, 2,  4, 11, 1, 2, 0 };
     oid    name[MAX_OID_LEN];
 
     if (argc < 2)
@@ -72,6 +75,8 @@ _walk(struct asmp_cfg *cfg, int *oid, int *oid_len)
 
     len = 0;
     req = malloc(512);
+
+    // Variable
     req[len++] = ASMP_SOH;
     req[len++] = ((3+*oid_len*4+3) >> 8) & 0xff;
     req[len++] =  (3+*oid_len*4+3) & 0xff;
@@ -81,24 +86,26 @@ _walk(struct asmp_cfg *cfg, int *oid, int *oid_len)
     req[len++] = ((*oid_len*4) >> 8) & 0xff;
     req[len++] =  (*oid_len*4) & 0xff;
 
-    printf("Requesting OID: ");
+    fprintf(stderr, "Requesting OID: ");
     for (i = 0; i<*oid_len; i++) {
         req[len++] = (oid[i] >> 24) & 0xff;
         req[len++] = (oid[i] >> 16) & 0xff;
         req[len++] = (oid[i] >>  8) & 0xff;
         req[len++] =  oid[i] & 0xff;
-        printf(".%d", oid[i]);
+        fprintf(stderr, ".%d", oid[i]);
     }
-    printf("\n");
+    fprintf(stderr, "\n");
     // ASN_NULL value
     req[len++] = ASN_NULL;
     req[len++] = 0;
     req[len++] = 0;
     // AIDP VarBind end
+    // Variable end
 
     req[len++] = ASMP_FIELD_TERM;
 
     pdu = asmp_pdu_new(ASMP_SNMP_GETNEXT_REQUEST, req, len);
+    //pdu = asmp_pdu_new(ASMP_SNMP_GET_REQUEST, req, len);
     if (asmp_request(cfg, pdu, &response) != 0 || response == NULL) {
         rc = -1;
         goto free;
@@ -112,7 +119,7 @@ _walk(struct asmp_cfg *cfg, int *oid, int *oid_len)
 
     if (response->data[10] == 3 && response->data[13] == 6) {
         *oid_len = ((response->data[14] << 8) | response->data[15]) / 4;
-        printf("OID detected: ");
+        fprintf(stderr, "OID detected: ");
         len = 16;
         for (i=0; i<*oid_len; i++) {
             oid[i] = (response->data[len] << 24) |
@@ -120,9 +127,9 @@ _walk(struct asmp_cfg *cfg, int *oid, int *oid_len)
                      (response->data[len+2] <<  8) |
                       response->data[len+3];
             len += 4;
-            printf(".%d", oid[i]);
+            fprintf(stderr, ".%d", oid[i]);
         }
-        printf("\n");
+        fprintf(stderr, "\n");
     }
 
     rc = 0;
