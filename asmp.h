@@ -36,6 +36,7 @@ struct asmp_net_meth {
 struct asmpnet_meth {
     int (*send)(struct asmp_connection *con, const void *buf, int num);
     int (*recv)(struct asmp_connection *con, void *buf, int num);
+    int (*close)(struct asmp_connection *con);
 };
 
 struct asmp_cfg {

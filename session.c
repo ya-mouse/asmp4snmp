@@ -6,6 +6,8 @@
 
 #include <net-snmp/library/asn1.h>
 
+#include <openssl/rand.h>
+
 #include "session.h"
 
 int snmp_build();
@@ -57,14 +59,37 @@ asmp_open(netsnmp_session *in_session)
                             NULL, _hook_build,
                             NULL, NULL,
                             NULL);
-        if (session != NULL)
+        if (session != NULL) {
+            // TODO: ASMP_LOGIN
             fprintf(stderr, "ASMP initialized\n");
+        }
     } else {
         session = NULL;
         fprintf(stderr, "SNMPv is not 3. ASMP is not initialized\n");
     }
 
     return session;
+}
+
+int
+asmp_close(netsnmp_session *session)
+{
+    struct asmp_connection *con;
+    netsnmp_transport *transport = snmp_sess_transport(session);
+
+    if (session == NULL || transport == NULL)
+        return -1;
+
+    con = (struct asmp_connection *)transport->data;
+    if (con == NULL)
+        return -1;
+
+    // TODO: ASMP_LOGOUT
+
+    if (con->meth->close != NULL)
+        return con->meth->close(con);
+
+    return 0;
 }
 
 int

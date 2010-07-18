@@ -20,19 +20,22 @@ static int _tcp_send();
 static int _tcp_recv();
 static int _ssl_send();
 static int _ssl_recv();
+static int _ssl_close();
 static int _dsr_asmp_version();
 static int _setup_ssl();
 
 // t->sock, buf, size, 0
 
 static struct asmpnet_meth tcp_connection = {
-    .send = _tcp_send,
-    .recv = _tcp_recv
+    .send  = _tcp_send,
+    .recv  = _tcp_recv,
+    .close = NULL
 };
 
 static struct asmpnet_meth ssl_connection = {
-    .send = _ssl_send,
-    .recv = _ssl_recv
+    .send  = _ssl_send,
+    .recv  = _ssl_recv,
+    .close = _ssl_close
 };
 
 #if 0
@@ -141,6 +144,9 @@ _td_tcp_close(netsnmp_transport *t)
 {
     int rc = -1;
     if (t != NULL && t->sock >= 0) {
+
+        // TODO: ASMP_LOGOUT
+
         DEBUGMSGTL(("netsnmp_tcp", "close fd %d\n", t->sock));
 #ifndef HAVE_CLOSESOCKET
         rc = close(t->sock);
@@ -173,7 +179,13 @@ _ssl_send(struct asmp_connection *con, const void *buf, int num)
 static int
 _ssl_recv(struct asmp_connection *con, void *buf, int num)
 {
-   return SSL_read(con->ssl_sock, buf, num);
+    return SSL_read(con->ssl_sock, buf, num);
+}
+
+static int
+_ssl_close()
+{
+    return 0;
 }
 
 static netsnmp_transport *
@@ -220,19 +232,15 @@ _create_tstring(oid *domain, int domain_len, int is_asmps,
     t->domain_length = domain_len;
 
     t->sock = socket(PF_INET, SOCK_STREAM, 0);
-    if (t->sock < 0) {
-        netsnmp_transport_free(t);
-        return NULL;
-    }
+    if (t->sock < 0)
+        goto free;
 
     t->flags = NETSNMP_TRANSPORT_FLAG_STREAM;
 
     t->remote = (u_char *)malloc(6);
-    if (t->remote == NULL) {
-        _td_tcp_close(t);
-        netsnmp_transport_free(t);
-        return NULL;
-    }
+    if (t->remote == NULL)
+        goto free;
+
     memcpy(t->remote, (u_char *) & (addr.sin_addr.s_addr), 4);
     t->remote[4] = (htons(addr.sin_port) & 0xff00) >> 8;
     t->remote[5] = (htons(addr.sin_port) & 0x00ff) >> 0;
@@ -248,11 +256,8 @@ _create_tstring(oid *domain, int domain_len, int is_asmps,
     rc = connect(t->sock, (struct sockaddr *)&addr,
                  sizeof(struct sockaddr));
 
-    if (rc < 0) {
-        _td_tcp_close(t);
-        netsnmp_transport_free(t);
-        return NULL;
-    }
+    if (rc < 0)
+        goto free;
 
     /*
      * Allow user to override the send and receive buffers. Default is
@@ -276,12 +281,110 @@ _create_tstring(oid *domain, int domain_len, int is_asmps,
 
     asmp->tcp_sock = t->sock;
     asmp->is_asmps = is_asmps;
-    if (is_asmps)
-        asmp->meth = &ssl_connection;
-    else
-        asmp->meth = &tcp_connection;
+    asmp->meth     = &tcp_connection;
+
+    // TODO: ASMP_SETUP_REQUEST
+
+    if (asmp->is_asmps) {
+        if (_setup_ssl(asmp) < 0)
+            goto free;
+    }
+
+    _dsr_asmp_version(asmp);
+
+    goto exit;
+
+free:
+    if (t->sock >= 0)
+        _td_tcp_close(t);
+    netsnmp_transport_free(t);
+    t = NULL;
+
+exit:
 
     return t;
+}
+
+static int
+_dsr_asmp_version(struct asmp_connection *con)
+{
+    int rc = 0;
+
+#if 0
+    struct asmp_pdu *pdu;
+    struct asmp_pdu *response = NULL;
+    uint8_t req[] = {ASMP_SOH, 0, 3, '3', '.', '0', ASMP_FIELD_TERM};
+
+    pdu = asmp_pdu_new(ASMP_VERSION_REQUEST, req, sizeof(req));
+    if (asmp_request(cfg, pdu, &response) != 0 || response == NULL) {
+        rc = -1;
+        goto free;
+    }
+
+    /* TODO: collect DSR version from response */
+
+    asmp_pdu_free(response);
+    rc = 0;
+
+free:
+    asmp_pdu_free(pdu);
+#endif
+
+    return rc;
+}
+
+static int
+_setup_ssl(struct asmp_connection *con)
+{
+    int rc = -1;
+
+    RAND_status();
+    SSL_library_init();
+    SSL_load_error_strings();
+    SSLeay_add_all_algorithms();
+    SSLeay_add_ssl_algorithms();
+
+    con->ssl_ctx = SSL_CTX_new(SSLv23_client_method());
+    if (con->ssl_ctx == NULL) {
+        fprintf(stderr, "asmp_ASMPDomain: Couldn't create SSL context\n");
+        goto exit;
+    }
+    SSL_CTX_set_default_verify_paths(con->ssl_ctx);
+
+    /* SSL_VERIFY_NONE instructs OpenSSL not to abort SSL_connect if the
+       certificate is invalid.  We verify the certificate separately in
+       ssl_check_certificate, which provides much better diagnostics
+       than examining the error stack after a failed SSL_connect.  */
+    SSL_CTX_set_verify (con->ssl_ctx, SSL_VERIFY_NONE, NULL);
+
+    /* Since fd_write unconditionally assumes partial writes (and
+       handles them correctly), allow them in OpenSSL.  */
+    SSL_CTX_set_mode(con->ssl_ctx, SSL_MODE_ENABLE_PARTIAL_WRITE);
+
+    /* The OpenSSL library can handle renegotiations automatically, so
+       tell it to do so.  */
+    SSL_CTX_set_mode(con->ssl_ctx, SSL_MODE_AUTO_RETRY);
+
+    con->ssl_sock = SSL_new(con->ssl_ctx);
+    if (con->ssl_sock == NULL) {
+        fprintf(stderr, "asmp_ASMPDomain: Coulnd't create SSL\n");
+        goto exit;
+    }
+
+    SSL_set_fd(con->ssl_sock, con->tcp_sock);
+    SSL_set_connect_state(con->ssl_sock);
+
+    if (SSL_connect(con->ssl_sock) <= 0 || con->ssl_sock->state != SSL_ST_OK) {
+        fprintf(stderr,
+                "asmp_ASMPDomain: Coulnd't establish SSL connection with remote host\n");
+            goto exit;
+    }
+
+    con->meth = &ssl_connection;
+    rc = 0;
+
+exit:
+    return rc;
 }
 
 static netsnmp_transport *

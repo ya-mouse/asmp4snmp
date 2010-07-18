@@ -7,6 +7,7 @@
 #include "session.h"
 
 static netsnmp_session * (*next_snmp_open)(netsnmp_session *session) = NULL;
+static int (*next_snmp_close)(netsnmp_session *session) = NULL;
 
 netsnmp_session *
 snmp_open(netsnmp_session *in_session)
@@ -34,4 +35,25 @@ snmp_open(netsnmp_session *in_session)
         session = next_snmp_open(in_session);
 
     return session;
+}
+
+int
+snmp_close(netsnmp_session *in_session)
+{
+    fprintf(stderr, "Hooked snmp_close called\n");
+    if (next_snmp_close == NULL) {
+        char *msg;
+
+        next_snmp_close = dlsym(RTLD_NEXT, "snmp_close");
+        if ((msg = dlerror()) != NULL) {
+            fprintf(stderr, "snmp_close: dlopen failed : %s\n", msg);
+            fflush(stderr);
+            return -1;
+        }
+    }
+
+    if (asmp_close(in_session) < 0)
+        return next_snmp_close(in_session);
+
+    return 0;
 }
