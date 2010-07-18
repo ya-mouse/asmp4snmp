@@ -1,5 +1,10 @@
 #include <stdlib.h>
 #include <errno.h>
+#include <fcntl.h>
+
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 #include "asmp.h"
 
@@ -143,11 +148,17 @@ _td_tcp_close(netsnmp_transport *t)
 {
     int rc = -1;
     if (t != NULL && t->sock >= 0) {
-
+        struct asmp_connection *con = (struct asmp_connection *)t->data;
         // TODO: ASMP_LOGOUT
 
-        if (((struct asmp_connection *)t->data)->proto == ASMP_PROTO_ASMPS) {
-             // TODO: Close SSL connection
+        if (con->proto == ASMP_PROTO_ASMPS) {
+            if (con->ssl_sock != NULL) {
+                SSL_shutdown(con->ssl_sock);
+                SSL_set_connect_state(con->ssl_sock);
+                SSL_free(con->ssl_sock);
+            }
+            if (con->ssl_ctx != NULL)
+                SSL_CTX_free(con->ssl_ctx);
         }
 
         DEBUGMSGTL(("netsnmp_tcp", "close fd %d\n", t->sock));
@@ -195,11 +206,6 @@ _create_tstring(oid *domain, int domain_len, int proto,
     struct asmp_connection *asmp;
     struct sockaddr_in addr;
 
-    if (local) {
-        /* Server mode is not supported */
-        return NULL;
-    }
-
     if (!netsnmp_sockaddr_in2(&addr, str, default_target))
         return NULL;
 
@@ -212,10 +218,8 @@ _create_tstring(oid *domain, int domain_len, int proto,
 
 #if 0
     addr_pair = (netsnmp_udp_addr_pair *)malloc(sizeof(netsnmp_udp_addr_pair));
-    if (addr_pair == NULL) {
-        netsnmp_transport_free(t);
-        return NULL;
-    }
+    if (addr_pair == NULL)
+        goto free;
     t->data = addr_pair;
     t->data_length = sizeof(netsnmp_udp_addr_pair);
     memcpy(&(addr_pair->remote_addr), addr, sizeof(struct sockaddr_in));
@@ -234,35 +238,92 @@ _create_tstring(oid *domain, int domain_len, int proto,
 
     t->flags = NETSNMP_TRANSPORT_FLAG_STREAM;
 
-    t->remote = (u_char *)malloc(6);
-    if (t->remote == NULL)
-        goto free;
+    if (local) {
+        int sockflags = 0, opt = 1;
 
-    memcpy(t->remote, (u_char *) & (addr.sin_addr.s_addr), 4);
-    t->remote[4] = (htons(addr.sin_port) & 0xff00) >> 8;
-    t->remote[5] = (htons(addr.sin_port) & 0x00ff) >> 0;
-    t->remote_length = 6;
+        /*
+         * This session is inteneded as a server, so we must bind to the given 
+         * IP address (which may include an interface address, or could be
+         * INADDR_ANY, but will always include a port number.  
+         */
 
-    /*
-     * This is a client-type session, so attempt to connect to the far
-     * end.  We don't go non-blocking here because it's not obvious what
-     * you'd then do if you tried to do snmp_sends before the connection
-     * had completed.  So this can block.
-     */
+        t->flags |= NETSNMP_TRANSPORT_FLAG_LISTEN;
+        t->local = (u_char *)malloc(6);
+        if (t->local == NULL)
+            goto free;
+        memcpy(t->local, (u_char *) & (addr.sin_addr.s_addr), 4);
+        t->local[4] = (htons(addr.sin_port) & 0xff00) >> 8;
+        t->local[5] = (htons(addr.sin_port) & 0x00ff) >> 0;
+        t->local_length = 6;
 
-    rc = connect(t->sock, (struct sockaddr *)&addr,
-                 sizeof(struct sockaddr));
+        /*
+         * We should set SO_REUSEADDR too.  
+         */
 
-    if (rc < 0)
-        goto free;
+        setsockopt(t->sock, SOL_SOCKET, SO_REUSEADDR, (void *)&opt,
+                   sizeof(opt));
 
-    /*
-     * Allow user to override the send and receive buffers. Default is
-     * to use os default.  Don't worry too much about errors --
-     * just plough on regardless.  
-     */
-    netsnmp_sock_buffer_set(t->sock, SO_SNDBUF, local, 0);
-    netsnmp_sock_buffer_set(t->sock, SO_RCVBUF, local, 0);
+        rc = bind(t->sock, (struct sockaddr *)&addr, sizeof(struct sockaddr));
+        if (rc != 0)
+            goto free;
+
+        /*
+         * Since we are going to be letting select() tell us when connections
+         * are ready to be accept()ed, we need to make the socket n0n-blocking
+         * to avoid the race condition described in W. R. Stevens, ``Unix
+         * Network Programming Volume I Second Edition'', pp. 422--4, which
+         * could otherwise wedge the agent.
+         */
+
+#ifdef WIN32
+        opt = 1;
+        ioctlsocket(t->sock, FIONBIO, &opt);
+#else
+        sockflags = fcntl(t->sock, F_GETFL, 0);
+        fcntl(t->sock, F_SETFL, sockflags | O_NONBLOCK);
+#endif
+
+        /*
+         * Now sit here and wait for connections to arrive.  
+         */
+
+        rc = listen(t->sock, NETSNMP_STREAM_QUEUE_LEN);
+        if (rc != 0)
+            goto free;
+        /*
+         * no buffer size on listen socket - doesn't make sense
+         */
+    } else {
+        t->remote = (u_char *)malloc(6);
+        if (t->remote == NULL)
+            goto free;
+
+        memcpy(t->remote, (u_char *) & (addr.sin_addr.s_addr), 4);
+        t->remote[4] = (htons(addr.sin_port) & 0xff00) >> 8;
+        t->remote[5] = (htons(addr.sin_port) & 0x00ff) >> 0;
+        t->remote_length = 6;
+
+        /*
+         * This is a client-type session, so attempt to connect to the far
+         * end.  We don't go non-blocking here because it's not obvious what
+         * you'd then do if you tried to do snmp_sends before the connection
+         * had completed.  So this can block.
+         */
+
+        rc = connect(t->sock, (struct sockaddr *)&addr,
+                     sizeof(struct sockaddr));
+
+        if (rc < 0)
+            goto free;
+
+        /*
+         * Allow user to override the send and receive buffers. Default is
+         * to use os default.  Don't worry too much about errors --
+         * just plough on regardless.  
+         */
+        netsnmp_sock_buffer_set(t->sock, SO_SNDBUF, local, 0);
+        netsnmp_sock_buffer_set(t->sock, SO_RCVBUF, local, 0);
+    }
 
     /*
      * Message size is not limited by this transport (hence msgMaxSize
