@@ -25,6 +25,12 @@
 #define TRANSPORT_DOMAIN_ASMP             1,3,6,1,2,1,100,1,10418,2
 #define TRANSPORT_DOMAIN_ASMPS            1,3,6,1,2,1,100,1,10418,3
 
+enum {
+    ASMP_PROTO_AIDP,
+    ASMP_PROTO_ASMP,
+    ASMP_PROTO_ASMPS
+};
+
 struct asmp_cfg;
 struct asmp_connection;
 
@@ -36,7 +42,6 @@ struct asmp_net_meth {
 struct asmpnet_meth {
     int (*send)(struct asmp_connection *con, const void *buf, int num);
     int (*recv)(struct asmp_connection *con, void *buf, int num);
-    int (*close)(struct asmp_connection *con);
 };
 
 struct asmp_cfg {
@@ -60,7 +65,7 @@ struct asmp_connection {
     SSL_CTX *ssl_ctx;
     struct asmpnet_meth *meth;
 
-    int      is_asmps;    /* session secured */
+    int      proto;
 };
 
 struct asmp_pdu {

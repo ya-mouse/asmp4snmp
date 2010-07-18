@@ -3,6 +3,8 @@
 
 #include "asmp.h"
 
+#include <openssl/rand.h>
+
 #include <net-snmp/types.h>
 #include <net-snmp/output_api.h>
 
@@ -20,7 +22,6 @@ static int _tcp_send();
 static int _tcp_recv();
 static int _ssl_send();
 static int _ssl_recv();
-static int _ssl_close();
 static int _dsr_asmp_version();
 static int _setup_ssl();
 
@@ -28,14 +29,12 @@ static int _setup_ssl();
 
 static struct asmpnet_meth tcp_connection = {
     .send  = _tcp_send,
-    .recv  = _tcp_recv,
-    .close = NULL
+    .recv  = _tcp_recv
 };
 
 static struct asmpnet_meth ssl_connection = {
     .send  = _ssl_send,
-    .recv  = _ssl_recv,
-    .close = _ssl_close
+    .recv  = _ssl_recv
 };
 
 #if 0
@@ -147,6 +146,10 @@ _td_tcp_close(netsnmp_transport *t)
 
         // TODO: ASMP_LOGOUT
 
+        if (((struct asmp_connection *)t->data)->proto == ASMP_PROTO_ASMPS) {
+             // TODO: Close SSL connection
+        }
+
         DEBUGMSGTL(("netsnmp_tcp", "close fd %d\n", t->sock));
 #ifndef HAVE_CLOSESOCKET
         rc = close(t->sock);
@@ -182,14 +185,8 @@ _ssl_recv(struct asmp_connection *con, void *buf, int num)
     return SSL_read(con->ssl_sock, buf, num);
 }
 
-static int
-_ssl_close()
-{
-    return 0;
-}
-
 static netsnmp_transport *
-_create_tstring(oid *domain, int domain_len, int is_asmps,
+_create_tstring(oid *domain, int domain_len, int proto,
                 const char *str, int local,
                 const char *default_target)
 {
@@ -280,12 +277,12 @@ _create_tstring(oid *domain, int domain_len, int is_asmps,
     t->f_fmtaddr  = NULL; // _td_tcp_fmtaddr;
 
     asmp->tcp_sock = t->sock;
-    asmp->is_asmps = is_asmps;
+    asmp->proto    = proto;
     asmp->meth     = &tcp_connection;
 
     // TODO: ASMP_SETUP_REQUEST
 
-    if (asmp->is_asmps) {
+    if (asmp->proto == ASMP_PROTO_ASMPS) {
         if (_setup_ssl(asmp) < 0)
             goto free;
     }
@@ -392,7 +389,8 @@ _asmp_create_tstring(const char *str, int local,
                      const char *default_target)
 {
     return _create_tstring(netsnmp_asmpASMPDomain,
-                           sizeof(netsnmp_asmpASMPDomain)/sizeof(oid), 0,
+                           sizeof(netsnmp_asmpASMPDomain)/sizeof(oid),
+                           ASMP_PROTO_ASMP,
                            str, local, default_target);
 }
 
@@ -401,7 +399,8 @@ _asmps_create_tstring(const char *str, int local,
                       const char *default_target)
 {
     return _create_tstring(netsnmp_asmpASMPSDomain,
-                           sizeof(netsnmp_asmpASMPSDomain)/sizeof(oid), 1,
+                           sizeof(netsnmp_asmpASMPSDomain)/sizeof(oid),
+                           ASMP_PROTO_ASMPS,
                            str, local, default_target);
 }
 

@@ -6,11 +6,13 @@
 
 #include <net-snmp/library/asn1.h>
 
-#include <openssl/rand.h>
-
 #include "session.h"
 
 int snmp_build();
+
+oid *netsnmp_asmpAIDPDomain;
+oid *netsnmp_asmpASMPDomain;
+oid *netsnmp_asmpASMPSDomain;
 
 static int _hook_parse();
 static int _hook_build();
@@ -69,27 +71,6 @@ asmp_open(netsnmp_session *in_session)
     }
 
     return session;
-}
-
-int
-asmp_close(netsnmp_session *session)
-{
-    struct asmp_connection *con;
-    netsnmp_transport *transport = snmp_sess_transport(session);
-
-    if (session == NULL || transport == NULL)
-        return -1;
-
-    con = (struct asmp_connection *)transport->data;
-    if (con == NULL)
-        return -1;
-
-    // TODO: ASMP_LOGOUT
-
-    if (con->meth->close != NULL)
-        return con->meth->close(con);
-
-    return 0;
 }
 
 int
