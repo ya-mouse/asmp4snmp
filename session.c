@@ -8,6 +8,65 @@
 
 #include "session.h"
 
+int snmp_build();
+
+static int _hook_parse();
+static int _hook_build();
+
+// transport = snmp_sess_transport(session)
+// session->securityName contains username from '-u' arg
+
+netsnmp_session *
+asmp_open(netsnmp_session *in_session)
+{
+    netsnmp_session *session;
+    netsnmp_transport *transport;
+
+    if (in_session == NULL)
+        return NULL;
+
+    netsnmp_ds_set_int(NETSNMP_DS_LIBRARY_ID,
+                       NETSNMP_DS_LIB_DEFAULT_PORT,
+                       ASMP_PORT);
+
+    if (in_session->version == SNMP_VERSION_3 &&
+        (!strncmp(in_session->peername, "asmp:", 5) ||
+         !strncmp(in_session->peername, "asmps:", 6) ||
+         !strncmp(in_session->peername, "aidp:", 5)))
+    {
+        /* Set TCP flag for non-AIDP connection */
+        if (strncmp(in_session->peername, "aidp:", 5))
+            in_session->flags |= SNMP_FLAGS_STREAM_SOCKET;
+
+        if (in_session->flags & SNMP_FLAGS_STREAM_SOCKET) {
+            transport =
+                netsnmp_tdomain_transport_full("asmp", in_session->peername,
+                                               in_session->local_port, "tcp",
+                                               NULL);
+        } else {
+            transport =
+                netsnmp_tdomain_transport_full("aidp", in_session->peername,
+                                               in_session->local_port, "udp",
+                                               NULL);
+        }
+
+// hook_create_pdu
+        session = snmp_add_full(in_session,
+                            transport,
+                            NULL, _hook_parse,
+                            NULL, _hook_build,
+                            NULL, NULL,
+                            NULL);
+        if (session != NULL)
+            fprintf(stderr, "ASMP initialized\n");
+    } else {
+        session = NULL;
+        fprintf(stderr, "SNMPv is not 3. ASMP is not initialized\n");
+    }
+
+    return session;
+}
+
 int
 asmp_request(struct asmp_cfg *cfg, const struct asmp_pdu *pdu, struct asmp_pdu **response)
 {
@@ -80,5 +139,29 @@ free_resp:
 
 free:
     free(buf);
+    return rc;
+}
+
+static int
+_hook_parse(netsnmp_session * sp, netsnmp_pdu * pdu,
+            u_char * pkt, size_t len)
+{
+    fprintf(stderr, "_hook_parse called\n");
+    return -1;
+}
+
+static int
+_hook_build(netsnmp_session * sp,
+            netsnmp_pdu *pdu, u_char * pkt, size_t * len)
+{
+    int rc;
+    size_t offset = 0;
+
+    fprintf(stderr, "_hook_build called\n");
+    rc = snmp_build(&pkt, len, &offset, sp, pdu);
+    if (rc >= 0) {
+        memcpy(pkt, pkt+(*len)-offset, *len);
+        *len = offset;
+    }
     return rc;
 }
