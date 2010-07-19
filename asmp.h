@@ -60,11 +60,11 @@ struct asmp_cfg {
 };
 
 struct asmp_connection {
-    int      tcp_sock;
+    int      sock;
     SSL     *ssl_sock;
     SSL_CTX *ssl_ctx;
-    struct asmpnet_meth *meth;
-
+    struct asmpnet_meth *tcp_meth;
+    void    *addr_pair;
     int      proto;
 };
 

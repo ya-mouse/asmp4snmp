@@ -15,6 +15,11 @@
 
 #include <net-snmp/library/snmp_transport.h>
 
+typedef struct netsnmp_udp_addr_pair_s {
+    struct sockaddr_in remote_addr;
+    struct in_addr local_addr;
+} netsnmp_udp_addr_pair;
+
 int netsnmp_sockaddr_in2();
 
 oid netsnmp_asmpASMPDomain[]  = { TRANSPORT_DOMAIN_ASMP };
@@ -93,7 +98,7 @@ _td_tcp_recv(netsnmp_transport *t, void *buf, int size,
     if (t != NULL && t->sock >= 0) {
         struct asmp_connection *asmp = (struct asmp_connection *)t->data;
 	while (rc < 0) {
-	    rc = asmp->meth->recv(asmp, buf, size);
+	    rc = asmp->tcp_meth->recv(asmp, buf, size);
 	    if (rc < 0 && errno != EINTR) {
 		DEBUGMSGTL(("netsnmp_tcp", "recv fd %d err %d (\"%s\")\n",
 			    t->sock, errno, strerror(errno)));
@@ -134,7 +139,7 @@ _td_tcp_send(netsnmp_transport *t, void *buf, int size,
     if (t != NULL && t->sock >= 0) {
         struct asmp_connection *asmp = (struct asmp_connection *)t->data;
 	while (rc < 0) {
-	    rc = asmp->meth->send(asmp, buf, size);
+	    rc = asmp->tcp_meth->send(asmp, buf, size);
 	    if (rc < 0 && errno != EINTR) {
 		break;
 	    }
@@ -175,13 +180,13 @@ _td_tcp_close(netsnmp_transport *t)
 static int
 _tcp_send(struct asmp_connection *con, const void *buf, int num)
 {
-    return send(con->tcp_sock, buf, num, 0);
+    return send(con->sock, buf, num, 0);
 }
 
 static int
 _tcp_recv(struct asmp_connection *con, void *buf, int num)
 {
-    return recv(con->tcp_sock, buf, num, 0);
+    return recv(con->sock, buf, num, 0);
 }
 
 static int
@@ -216,18 +221,14 @@ _create_tstring(oid *domain, int domain_len, int proto,
     if (t == NULL)
         return NULL;
 
-#if 0
-    addr_pair = (netsnmp_udp_addr_pair *)malloc(sizeof(netsnmp_udp_addr_pair));
-    if (addr_pair == NULL)
-        goto free;
-    t->data = addr_pair;
-    t->data_length = sizeof(netsnmp_udp_addr_pair);
-    memcpy(&(addr_pair->remote_addr), addr, sizeof(struct sockaddr_in));
-#else
     asmp = calloc(1, sizeof(struct asmp_connection));
     t->data = asmp;
     t->data_length = sizeof(struct asmp_connection);
-#endif
+
+    asmp->addr_pair = (netsnmp_udp_addr_pair *)malloc(sizeof(netsnmp_udp_addr_pair));
+    if (asmp->addr_pair == NULL)
+        goto free;
+    memcpy(&(((netsnmp_udp_addr_pair *)asmp->addr_pair)->remote_addr), &addr, sizeof(struct sockaddr_in));
 
     t->domain = domain;
     t->domain_length = domain_len;
@@ -337,9 +338,9 @@ _create_tstring(oid *domain, int domain_len, int proto,
     t->f_accept   = NULL;
     t->f_fmtaddr  = NULL; // _td_tcp_fmtaddr;
 
-    asmp->tcp_sock = t->sock;
+    asmp->sock     = t->sock;
     asmp->proto    = proto;
-    asmp->meth     = &tcp_connection;
+    asmp->tcp_meth = &tcp_connection;
 
     // TODO: ASMP_SETUP_REQUEST
 
@@ -429,7 +430,7 @@ _setup_ssl(struct asmp_connection *con)
         goto exit;
     }
 
-    SSL_set_fd(con->ssl_sock, con->tcp_sock);
+    SSL_set_fd(con->ssl_sock, con->sock);
     SSL_set_connect_state(con->ssl_sock);
 
     if (SSL_connect(con->ssl_sock) <= 0 || con->ssl_sock->state != SSL_ST_OK) {
@@ -438,7 +439,7 @@ _setup_ssl(struct asmp_connection *con)
             goto exit;
     }
 
-    con->meth = &ssl_connection;
+    con->tcp_meth = &ssl_connection;
     rc = 0;
 
 exit:

@@ -16,8 +16,8 @@ libsnmphook.so: $(OBJH)
 	$(CC) -o $@ $^ -shared -Wl,-soname,libsnmphook.so -ldl $(LIBS)
 
 test: libsnmphook.so
-#	LD_PRELOAD=$(PWD)/libsnmphook.so snmpget -v3 aidp:localhost  1.3.6.1 -On -d -Dtdomain -Dnetsnmp_sockaddr_in
-	LD_PRELOAD=$(PWD)/libsnmphook.so snmpget -v3 asmp:localhost  1.3.6.1 -On -d -Dtdomain -Dnetsnmp_sockaddr_in
+	LD_PRELOAD=$(PWD)/libsnmphook.so snmpget -v3 aidp:localhost  1.3.6.1 -On -d -Dtdomain -Dnetsnmp_sockaddr_in
+#	LD_PRELOAD=$(PWD)/libsnmphook.so snmpget -v3 asmp:localhost  1.3.6.1 -On -d -Dtdomain -Dnetsnmp_sockaddr_in
 #	LD_PRELOAD=$(PWD)/libsnmphook.so snmpget -v3 asmps:localhost 1.3.6.1 -On -d -Dtdomain -Dnetsnmp_sockaddr_in
 
 clean:

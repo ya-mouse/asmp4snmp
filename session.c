@@ -33,7 +33,7 @@ asmp_open(netsnmp_session *in_session)
                        NETSNMP_DS_LIB_DEFAULT_PORT,
                        ASMP_PORT);
 
-    if (in_session->version == SNMP_VERSION_3 &&
+    if (in_session->version == SNMP_VERSION_2c &&
         (!strncmp(in_session->peername, "asmp:", 5) ||
          !strncmp(in_session->peername, "asmps:", 6) ||
          !strncmp(in_session->peername, "aidp:", 5)))
@@ -57,8 +57,8 @@ asmp_open(netsnmp_session *in_session)
 // hook_create_pdu
         session = snmp_add_full(in_session,
                             transport,
-                            NULL, _hook_parse,
-                            NULL, _hook_build,
+                            NULL, NULL, //_hook_parse,
+                            NULL, NULL, //_hook_build,
                             NULL, NULL,
                             NULL);
         if (session != NULL) {
@@ -162,6 +162,15 @@ _hook_build(netsnmp_session * sp,
 {
     int rc;
     size_t offset = 0;
+    struct asmp_connection *con;
+    netsnmp_transport *transport = snmp_sess_transport(sp);
+
+    if (transport == NULL)
+        return -1;
+
+    con = transport->data;
+    if (con == NULL)
+        return -1;
 
     fprintf(stderr, "_hook_build called\n");
     rc = snmp_build(&pkt, len, &offset, sp, pdu);
