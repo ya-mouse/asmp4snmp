@@ -57,8 +57,8 @@ asmp_open(netsnmp_session *in_session)
 // hook_create_pdu
         session = snmp_add_full(in_session,
                             transport,
-                            NULL, NULL, //_hook_parse,
-                            NULL, NULL, //_hook_build,
+                            NULL, _hook_parse,
+                            NULL, _hook_build,
                             NULL, NULL,
                             NULL);
         if (session != NULL) {
@@ -163,8 +163,9 @@ _hook_build(netsnmp_session * sp,
     int rc;
     size_t offset = 0;
     struct asmp_connection *con;
-    netsnmp_transport *transport = snmp_sess_transport(sp);
+    netsnmp_transport *transport;
 
+    transport = snmp_sess_transport(snmp_sess_pointer(sp));
     if (transport == NULL)
         return -1;
 
