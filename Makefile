@@ -1,4 +1,4 @@
-OBJ = network.o session.o asmp.o asmpASMPDomain.o asmpAIDPDomain.o
+OBJ = session.o asmpASMPDomain.o asmpAIDPDomain.o
 OBJH = $(OBJ) snmphook.o
 
 CFLAGS = -Wall -g
@@ -7,9 +7,9 @@ LIBS   = -lssl -lsnmp
 %.o: %.c
 	$(CC) -c $(CFLAGS) $<
 
-all: asmp libsnmphook.so
+all: libsnmphook.so
 
-asmp: $(OBJ)
+asmp: asmp.o network.o $(OBJ)
 	$(CC) -o $@ $^ $(LIBS) -g
 
 libsnmphook.so: $(OBJH)

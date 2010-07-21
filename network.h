@@ -10,4 +10,6 @@ int              asmp_net_connect(struct asmp_cfg *cfg);
 int              asmp_net_login(struct asmp_cfg *cfg, const char *user, const char *passwd);
 int              asmp_net_logout(struct asmp_cfg *cfg);
 
+int asmp_request(struct asmp_cfg *cfg, const struct asmp_pdu *pdu, struct asmp_pdu **response);
+
 #endif
