@@ -1,0 +1,2953 @@
+<mib name="DSR-MIB" rootOid="1.3.6.1.4.1" version="">
+  <node id="10418" name="avocent" type="node" accessibility="na" status="unknown">
+
+    <node id="7" name="dsr" type="node" accessibility="na" status="unknown">
+
+      <node id="1" name="dsrProducts" type="node" accessibility="na" status="unknown">
+
+        <node id="1" name="dsr1161" type="node" accessibility="na" status="unknown">
+
+
+        </node>
+        <node id="2" name="dsr2161" type="node" accessibility="na" status="unknown">
+
+
+        </node>
+        <node id="3" name="dsr4160" type="node" accessibility="na" status="unknown">
+
+
+        </node>
+        <node id="4" name="dsr1010" type="node" accessibility="na" status="unknown">
+
+
+        </node>
+        <node id="5" name="dsr2010" type="node" accessibility="na" status="unknown">
+
+
+        </node>
+        <node id="6" name="dsr4010" type="node" accessibility="na" status="unknown">
+
+
+        </node>
+        <node id="8" name="dsr800" type="node" accessibility="na" status="unknown">
+
+
+        </node>
+        <node id="9" name="dsr1020" type="node" accessibility="na" status="unknown">
+
+
+        </node>
+        <node id="10" name="dsr2020" type="node" accessibility="na" status="unknown">
+
+
+        </node>
+        <node id="11" name="dsr4020" type="node" accessibility="na" status="unknown">
+
+
+        </node>
+        <node id="12" name="dsr8020" type="node" accessibility="na" status="unknown">
+
+
+        </node>
+        <node id="13" name="dsr1022" type="node" accessibility="na" status="unknown">
+
+
+        </node>
+        <node id="14" name="dsr1024" type="node" accessibility="na" status="unknown">
+
+
+        </node>
+        <node id="15" name="dsr1030" type="node" accessibility="na" status="unknown">
+
+
+        </node>
+        <node id="16" name="dsr2030" type="node" accessibility="na" status="unknown">
+
+
+        </node>
+        <node id="17" name="dsr4030" type="node" accessibility="na" status="unknown">
+
+
+        </node>
+        <node id="18" name="dsr8030" type="node" accessibility="na" status="unknown">
+
+
+        </node>
+        <node id="19" name="dsr1031" type="node" accessibility="na" status="unknown">
+
+
+        </node>
+        <node id="22" name="dsr2035" type="node" accessibility="na" status="unknown">
+
+
+        </node>
+        <node id="23" name="dsr8035" type="node" accessibility="na" status="unknown">
+
+
+        </node>
+
+      </node>
+      <node id="2" name="dsrManagement" type="node" accessibility="na" status="unknown">
+
+        <node id="1" name="dsrAppliance" type="node" accessibility="na" status="unknown">
+
+          <node id="1" name="dsrMibMajorVersion" type="int" accessibility="ro" status="mandatory">
+
+            <rangeConstraint min="0" max="65535" />
+
+
+          </node>
+          <node id="2" name="dsrMibMinorVersion" type="int" accessibility="ro" status="mandatory">
+
+            <rangeConstraint min="0" max="65535" />
+
+
+          </node>
+          <node id="3" name="dsrDigitizerTotal" type="int" accessibility="ro" status="mandatory">
+
+
+          </node>
+          <node id="4" name="dsrPartNumber" type="ascii" accessibility="ro" status="mandatory" typeSymbol="DisplayString">
+
+            <sizeConstraint min="0" max="32" />
+
+
+          </node>
+          <node id="5" name="dsrSerialNumber" type="ascii" accessibility="ro" status="mandatory" typeSymbol="DisplayString">
+
+            <sizeConstraint min="0" max="32" />
+
+
+          </node>
+          <node id="6" name="dsrEIDNumber" type="ascii" accessibility="ro" status="mandatory" typeSymbol="DisplayString">
+
+            <sizeConstraint min="0" max="32" />
+
+
+          </node>
+          <node id="7" name="dsrReboot" type="int" accessibility="rw" status="mandatory">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+
+            <symbol name="noAction" value="1" />
+            <symbol name="reboot" value="2" />
+
+
+          </node>
+          <node id="8" name="dsrIPAddress" type="ipAddress" accessibility="rw" status="mandatory" typeSymbol="IpAddress">
+
+            <sizeConstraint min="4" max="4" />
+
+
+          </node>
+          <node id="9" name="dsrSubnetMask" type="ipAddress" accessibility="rw" status="mandatory" typeSymbol="IpAddress">
+
+            <sizeConstraint min="4" max="4" />
+
+
+          </node>
+          <node id="10" name="dsrGateway" type="ipAddress" accessibility="rw" status="mandatory" typeSymbol="IpAddress">
+
+            <sizeConstraint min="4" max="4" />
+
+
+          </node>
+          <node id="11" name="dsrLanSpeed" type="int" accessibility="rw" status="mandatory">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+            <valueConstraint value="3" />
+            <valueConstraint value="4" />
+            <valueConstraint value="5" />
+            <valueConstraint value="6" />
+
+            <symbol name="auto" value="1" />
+            <symbol name="full100Mbps" value="5" />
+            <symbol name="full10Mbps" value="3" />
+            <symbol name="full1Gbps" value="6" />
+            <symbol name="half100Mbps" value="4" />
+            <symbol name="half10Mbps" value="2" />
+
+
+          </node>
+          <node id="12" name="dsrBootpControl" type="int" accessibility="rw" status="mandatory">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+
+            <symbol name="disabled" value="1" />
+            <symbol name="enabled" value="2" />
+
+
+          </node>
+          <node id="13" name="dsrKeyboardMouseEncryptionTable" type="sequenceOfType" accessibility="na" status="mandatory">
+
+            <node id="1" name="dsrKeyboardMouseEncryptionTableEntry" type="sequenceOfType" accessibility="na" status="mandatory" typeSymbol="DsrKeyboardMouseEncryptionTableEntry">
+
+              <index oid="1.3.6.1.4.1.10418.7.2.1.13.1.1" />
+
+              <node id="1" name="dsrKeyboardMouseEncryptionTableIndex" type="int" accessibility="ro" status="mandatory" typeSymbol="EncryptionLevelEnum">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+                <valueConstraint value="4" />
+
+                <symbol name="encrypt128" value="3" />
+                <symbol name="encrypt3des" value="2" />
+                <symbol name="encryptAes" value="4" />
+                <symbol name="encryptdes" value="1" />
+
+
+              </node>
+              <node id="2" name="dsrKeyboardMouseEncryptionTableControl" type="int" accessibility="rw" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+
+                <symbol name="disabled" value="1" />
+                <symbol name="enabled" value="2" />
+
+
+              </node>
+
+            </node>
+
+          </node>
+          <node id="14" name="dsrVideoEncryptionTable" type="sequenceOfType" accessibility="na" status="mandatory">
+
+            <node id="1" name="dsrVideoEncryptionTableEntry" type="sequenceOfType" accessibility="na" status="mandatory" typeSymbol="DsrVideoEncryptionTableEntry">
+
+              <index oid="1.3.6.1.4.1.10418.7.2.1.14.1.1" />
+
+              <node id="1" name="dsrVideoEncryptionTableIndex" type="int" accessibility="ro" status="mandatory" typeSymbol="EncryptionLevelEnum">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+                <valueConstraint value="4" />
+
+                <symbol name="encrypt128" value="3" />
+                <symbol name="encrypt3des" value="2" />
+                <symbol name="encryptAes" value="4" />
+                <symbol name="encryptdes" value="1" />
+
+
+              </node>
+              <node id="2" name="dsrVideoEncryptionTableControl" type="int" accessibility="rw" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+
+                <symbol name="disabled" value="1" />
+                <symbol name="enabled" value="2" />
+
+
+              </node>
+
+            </node>
+
+          </node>
+          <node id="15" name="dsrServerTable" type="sequenceOfType" accessibility="na" status="mandatory">
+
+            <node id="1" name="dsrServerTableEntry" type="sequenceOfType" accessibility="na" status="mandatory" typeSymbol="DsrServerTableEntry">
+
+              <index oid="1.3.6.1.4.1.10418.7.2.1.15.1.1" />
+
+              <node id="1" name="dsrServerTableIndex" type="int" accessibility="ro" status="mandatory">
+
+
+              </node>
+              <node id="2" name="dsrServerTableInputPort" type="int" accessibility="ro" status="mandatory">
+
+
+              </node>
+              <node id="3" name="dsrServerTableRipId" type="ascii" accessibility="ro" status="mandatory" typeSymbol="DisplayString">
+
+                <sizeConstraint min="0" max="32" />
+
+
+              </node>
+              <node id="4" name="dsrServerTableSwitchChannel" type="int" accessibility="ro" status="mandatory">
+
+
+              </node>
+              <node id="5" name="dsrServerTableServerName" type="utf8" accessibility="rw" status="mandatory" typeSymbol="UTF8String">
+
+                <sizeConstraint min="0" max="64" />
+
+
+              </node>
+              <node id="6" name="dsrServerTablePowerStatus" type="int" accessibility="ro" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+
+                <symbol name="off" value="1" />
+                <symbol name="on" value="2" />
+
+
+              </node>
+              <node id="7" name="dsrServerTableSessionStatus" type="int" accessibility="ro" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+
+                <symbol name="active" value="2" />
+                <symbol name="idle" value="1" />
+                <symbol name="pathBlocked" value="3" />
+
+
+              </node>
+              <node id="8" name="dsrServerTableExitMacro" type="int" accessibility="rw" status="mandatory">
+
+                <rangeConstraint min="0" max="16" />
+
+
+              </node>
+              <node id="9" name="dsrServerTableAccessControlList" type="byte[]" accessibility="ro" status="mandatory">
+
+                <sizeConstraint min="0" max="64" />
+
+
+              </node>
+              <node id="10" name="dsrServerTableVirtualMediaSessionStatus" type="int" accessibility="ro" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+
+                <symbol name="active" value="2" />
+                <symbol name="idle" value="1" />
+                <symbol name="pathBlocked" value="3" />
+
+
+              </node>
+
+            </node>
+
+          </node>
+          <node id="16" name="dsrAggregateServerStatus" type="byte[]" accessibility="ro" status="mandatory">
+
+            <sizeConstraint min="0" max="5122" />
+
+
+          </node>
+          <node id="17" name="dsrCreateNewFileControl" type="int" accessibility="rw" status="mandatory">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+            <valueConstraint value="3" />
+
+            <symbol name="config" value="2" />
+            <symbol name="noAction" value="1" />
+            <symbol name="user" value="3" />
+
+
+          </node>
+          <node id="18" name="dsrFileCreationStatus" type="int" accessibility="ro" status="mandatory">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+            <valueConstraint value="3" />
+            <valueConstraint value="4" />
+
+            <symbol name="failed" value="4" />
+            <symbol name="inProgress" value="2" />
+            <symbol name="ready" value="1" />
+            <symbol name="succeeded" value="3" />
+
+
+          </node>
+          <node id="19" name="dsrFileCreationFailReason" type="int" accessibility="ro" status="mandatory" typeSymbol="FileCreationFailReasonEnum">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+            <valueConstraint value="9999" />
+            <valueConstraint value="3" />
+            <valueConstraint value="4" />
+            <valueConstraint value="5" />
+            <valueConstraint value="6" />
+            <valueConstraint value="7" />
+
+            <symbol name="fileCreationCannotGenerateACLs" value="4" />
+            <symbol name="fileCreationCannotGenerateUsers" value="5" />
+            <symbol name="fileCreationCannotOpenForWrite" value="1" />
+            <symbol name="fileCreationCannotStartThread" value="7" />
+            <symbol name="fileCreationMemoryAllocError" value="3" />
+            <symbol name="fileCreationNoStatus" value="9999" />
+            <symbol name="fileCreationThreadAlreadyRunning" value="6" />
+            <symbol name="fileCreationWriteError" value="2" />
+
+
+          </node>
+          <node id="20" name="dsrCreatedFileName" type="ascii" accessibility="ro" status="mandatory" typeSymbol="DisplayString">
+
+            <sizeConstraint min="0" max="12" />
+
+
+          </node>
+          <node id="21" name="dsrLoadFileControl" type="int" accessibility="rw" status="mandatory">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+            <valueConstraint value="3" />
+
+            <symbol name="config" value="2" />
+            <symbol name="noAction" value="1" />
+            <symbol name="user" value="3" />
+
+
+          </node>
+          <node id="22" name="dsrLoadFileName" type="ascii" accessibility="rw" status="mandatory" typeSymbol="DisplayString">
+
+            <sizeConstraint min="0" max="12" />
+
+
+          </node>
+          <node id="23" name="dsrFileLoadStatus" type="int" accessibility="ro" status="mandatory">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+            <valueConstraint value="3" />
+            <valueConstraint value="4" />
+
+            <symbol name="failed" value="4" />
+            <symbol name="inProgress" value="2" />
+            <symbol name="ready" value="1" />
+            <symbol name="succeeded" value="3" />
+
+
+          </node>
+          <node id="24" name="dsrFileLoadFailReason" type="int" accessibility="ro" status="mandatory" typeSymbol="FileLoadFailReasonEnum">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+            <valueConstraint value="3" />
+            <valueConstraint value="4" />
+            <valueConstraint value="5" />
+            <valueConstraint value="6" />
+            <valueConstraint value="7" />
+            <valueConstraint value="8" />
+            <valueConstraint value="9" />
+            <valueConstraint value="10" />
+            <valueConstraint value="11" />
+            <valueConstraint value="12" />
+            <valueConstraint value="13" />
+            <valueConstraint value="14" />
+            <valueConstraint value="15" />
+            <valueConstraint value="17" />
+            <valueConstraint value="16" />
+            <valueConstraint value="9999" />
+
+            <symbol name="fileCannotStartThread" value="17" />
+            <symbol name="fileLoadCannotOpenForRead" value="1" />
+            <symbol name="fileLoadConfigFieldInvalid" value="14" />
+            <symbol name="fileLoadConfigHeaderInvalid" value="12" />
+            <symbol name="fileLoadConfigIndexInvalid" value="15" />
+            <symbol name="fileLoadConfigRecordInvalid" value="13" />
+            <symbol name="fileLoadFileReadError" value="4" />
+            <symbol name="fileLoadInvalidFileSize" value="2" />
+            <symbol name="fileLoadInvalidHeader" value="5" />
+            <symbol name="fileLoadMemoryAllocFailure" value="3" />
+            <symbol name="fileLoadNoStatus" value="9999" />
+            <symbol name="fileLoadNotConfigFile" value="11" />
+            <symbol name="fileLoadNotUserFile" value="6" />
+            <symbol name="fileLoadUserFieldInvalid" value="9" />
+            <symbol name="fileLoadUserHeaderInvalid" value="7" />
+            <symbol name="fileLoadUserIndexInvalid" value="10" />
+            <symbol name="fileLoadUserRecordInvalid" value="8" />
+            <symbol name="fileThreadAlreadyRunning" value="16" />
+
+
+          </node>
+          <node id="25" name="dsrHardwareTable" type="sequenceOfType" accessibility="na" status="mandatory">
+
+            <node id="1" name="dsrHardwareTableEntry" type="sequenceOfType" accessibility="na" status="mandatory" typeSymbol="DsrHardwareTableEntry">
+
+              <index oid="1.3.6.1.4.1.10418.7.2.1.25.1.1" />
+
+              <node id="1" name="dsrHardwareTableIndex" type="int" accessibility="ro" status="mandatory">
+
+
+              </node>
+              <node id="2" name="dsrHardwareTableDescription" type="utf8" accessibility="ro" status="mandatory" typeSymbol="UTF8String">
+
+                <sizeConstraint min="0" max="64" />
+
+
+              </node>
+              <node id="3" name="dsrHardwareTableVersion" type="ascii" accessibility="ro" status="mandatory" typeSymbol="DisplayString">
+
+                <sizeConstraint min="0" max="32" />
+
+
+              </node>
+
+            </node>
+
+          </node>
+          <node id="26" name="dsrImageFileComponentTable" type="sequenceOfType" accessibility="na" status="mandatory">
+
+            <node id="1" name="dsrImageFileComponentTableEntry" type="sequenceOfType" accessibility="na" status="mandatory" typeSymbol="DsrImageFileComponentTableEntry">
+
+              <index oid="1.3.6.1.4.1.10418.7.2.1.26.1.1" />
+
+              <node id="1" name="dsrImageFileComponentTableIndex" type="int" accessibility="ro" status="mandatory">
+
+
+              </node>
+              <node id="2" name="dsrImageFileComponentTableDescription" type="utf8" accessibility="ro" status="mandatory" typeSymbol="UTF8String">
+
+                <sizeConstraint min="0" max="64" />
+
+
+              </node>
+              <node id="3" name="dsrImageFileComponentTableVersion" type="ascii" accessibility="ro" status="mandatory" typeSymbol="DisplayString">
+
+                <sizeConstraint min="0" max="32" />
+
+
+              </node>
+
+            </node>
+
+          </node>
+          <node id="27" name="dsrImageFileTable" type="sequenceOfType" accessibility="na" status="mandatory">
+
+            <node id="1" name="dsrImageFileTableEntry" type="sequenceOfType" accessibility="na" status="mandatory" typeSymbol="DsrImageFileTableEntry">
+
+              <index oid="1.3.6.1.4.1.10418.7.2.1.27.1.1" />
+
+              <node id="1" name="dsrImageFileTableIndex" type="int" accessibility="ro" status="mandatory">
+
+
+              </node>
+              <node id="2" name="dsrImageFileTableDescription" type="utf8" accessibility="ro" status="mandatory" typeSymbol="UTF8String">
+
+                <sizeConstraint min="0" max="64" />
+
+
+              </node>
+              <node id="3" name="dsrImageFileTableVersion" type="ascii" accessibility="ro" status="mandatory" typeSymbol="DisplayString">
+
+                <sizeConstraint min="0" max="32" />
+
+
+              </node>
+              <node id="4" name="dsrImageFileTableUpgradeFileName" type="utf8" accessibility="rw" status="mandatory" typeSymbol="UTF8String">
+
+                <sizeConstraint min="0" max="255" />
+
+
+              </node>
+              <node id="5" name="dsrImageFileTableTftpIPAddress" type="ipAddress" accessibility="rw" status="mandatory" typeSymbol="IpAddress">
+
+                <sizeConstraint min="4" max="4" />
+
+
+              </node>
+              <node id="6" name="dsrImageFileTableUpgradeControl" type="int" accessibility="rw" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+
+                <symbol name="asmpUpgrade" value="3" />
+                <symbol name="noAction" value="1" />
+                <symbol name="tftpUpgrade" value="2" />
+
+
+              </node>
+              <node id="7" name="dsrImageFileTableUpgradeStatus" type="int" accessibility="ro" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+                <valueConstraint value="4" />
+
+                <symbol name="failed" value="4" />
+                <symbol name="inProgress" value="2" />
+                <symbol name="ready" value="1" />
+                <symbol name="succeeded" value="3" />
+
+
+              </node>
+              <node id="8" name="dsrImageFileTableUpgradeFailReason" type="int" accessibility="ro" status="mandatory" typeSymbol="ImageFileUpgradeFailReasonEnum">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+                <valueConstraint value="4" />
+                <valueConstraint value="5" />
+                <valueConstraint value="6" />
+                <valueConstraint value="7" />
+                <valueConstraint value="8" />
+                <valueConstraint value="9" />
+                <valueConstraint value="10" />
+                <valueConstraint value="11" />
+                <valueConstraint value="12" />
+                <valueConstraint value="13" />
+                <valueConstraint value="14" />
+                <valueConstraint value="15" />
+                <valueConstraint value="17" />
+                <valueConstraint value="16" />
+                <valueConstraint value="19" />
+                <valueConstraint value="9999" />
+                <valueConstraint value="18" />
+                <valueConstraint value="21" />
+                <valueConstraint value="20" />
+                <valueConstraint value="22" />
+
+                <symbol name="imageUpgradeAlreadyInProgress" value="8" />
+                <symbol name="imageUpgradeBadHeader" value="18" />
+                <symbol name="imageUpgradeBadType" value="12" />
+                <symbol name="imageUpgradeCannotStart" value="9" />
+                <symbol name="imageUpgradeChecksumError" value="14" />
+                <symbol name="imageUpgradeFileNotFound" value="17" />
+                <symbol name="imageUpgradeFlashError" value="15" />
+                <symbol name="imageUpgradeIncompatibleHeader" value="19" />
+                <symbol name="imageUpgradeInternalError" value="16" />
+                <symbol name="imageUpgradeInvalidAppDowngrade" value="13" />
+                <symbol name="imageUpgradeMemoryError" value="10" />
+                <symbol name="imageUpgradeNetworkUnreachable" value="22" />
+                <symbol name="imageUpgradeNoStatus" value="9999" />
+                <symbol name="imageUpgradeTftpBadPacket" value="4" />
+                <symbol name="imageUpgradeTftpConnectFailure" value="2" />
+                <symbol name="imageUpgradeTftpNoSocket" value="1" />
+                <symbol name="imageUpgradeTftpOOS" value="5" />
+                <symbol name="imageUpgradeTftpProtocolError" value="11" />
+                <symbol name="imageUpgradeTftpRequestDenied" value="3" />
+                <symbol name="imageUpgradeTftpSvrNoResponse" value="21" />
+                <symbol name="imageUpgradeTftpTimeout" value="7" />
+                <symbol name="imageUpgradeTftpTooBig" value="6" />
+                <symbol name="imageUpgradeTftpXferFail" value="20" />
+
+
+              </node>
+              <node id="9" name="dsrImageFileTableCreationDate" type="ascii" accessibility="ro" status="mandatory" typeSymbol="DisplayString">
+
+                <sizeConstraint min="8" max="8" />
+
+
+              </node>
+              <node id="10" name="dsrImageFileTableCreationTime" type="ascii" accessibility="ro" status="mandatory" typeSymbol="DisplayString">
+
+                <sizeConstraint min="8" max="8" />
+
+
+              </node>
+              <node id="11" name="dsrImageFileTableCountryCode" type="ascii" accessibility="ro" status="mandatory" typeSymbol="DisplayString">
+
+                <sizeConstraint min="2" max="2" />
+
+
+              </node>
+              <node id="12" name="dsrImageFileTableLanguageCode" type="ascii" accessibility="ro" status="mandatory" typeSymbol="DisplayString">
+
+                <sizeConstraint min="3" max="3" />
+
+
+              </node>
+              <node id="13" name="dsrImageFileTableHeaderVersion" type="int" accessibility="ro" status="mandatory">
+
+
+              </node>
+              <node id="14" name="dsrImageFileTableFamilyCode" type="int" accessibility="ro" status="mandatory">
+
+
+              </node>
+
+            </node>
+
+          </node>
+          <node id="28" name="dsrApplianceStatus" type="int" accessibility="ro" status="mandatory">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+            <valueConstraint value="3" />
+            <valueConstraint value="4" />
+            <valueConstraint value="5" />
+
+            <symbol name="keyboardMouseSubsystemFailure" value="4" />
+            <symbol name="ready" value="1" />
+            <symbol name="startupInProgress" value="2" />
+            <symbol name="subsystemUpgrading" value="3" />
+            <symbol name="videoSubsystemFailure" value="5" />
+
+
+          </node>
+          <node id="29" name="dsrPingReply" type="int" accessibility="rw" status="mandatory">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+
+            <symbol name="disabled" value="1" />
+            <symbol name="enabled" value="2" />
+
+
+          </node>
+          <node id="30" name="dsrExitMacroTable" type="sequenceOfType" accessibility="na" status="mandatory">
+
+            <node id="1" name="dsrExitMacroTableEntry" type="sequenceOfType" accessibility="na" status="mandatory" typeSymbol="DsrExitMacroTableEntry">
+
+              <index oid="1.3.6.1.4.1.10418.7.2.1.30.1.1" />
+
+              <node id="1" name="dsrExitMacroTableIndex" type="int" accessibility="ro" status="mandatory">
+
+                <rangeConstraint min="1" max="16" />
+
+
+              </node>
+              <node id="2" name="dsrExitMacroTableMacro" type="byte[]" accessibility="rw" status="mandatory">
+
+                <sizeConstraint min="0" max="512" />
+
+
+              </node>
+              <node id="3" name="dsrExitMacroTableName" type="utf8" accessibility="rw" status="mandatory" typeSymbol="UTF8String">
+
+                <sizeConstraint min="0" max="32" />
+
+
+              </node>
+
+            </node>
+
+          </node>
+          <node id="31" name="dsrLocalAuthentication" type="int" accessibility="rw" status="mandatory">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+
+            <symbol name="disabled" value="1" />
+            <symbol name="enabled" value="2" />
+
+
+          </node>
+          <node id="32" name="dsrAuthServerAddressTable" type="sequenceOfType" accessibility="na" status="mandatory">
+
+            <node id="1" name="dsrAuthServerAddressTableEntry" type="sequenceOfType" accessibility="na" status="mandatory" typeSymbol="DsrAuthServerAddressTableEntry">
+
+              <index oid="1.3.6.1.4.1.10418.7.2.1.32.1.1" />
+
+              <node id="1" name="dsrAuthServerAddressTableIndex" type="int" accessibility="rw" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+                <valueConstraint value="4" />
+
+                <symbol name="addressFour" value="4" />
+                <symbol name="addressThree" value="3" />
+                <symbol name="primaryAddress" value="1" />
+                <symbol name="secondaryAddress" value="2" />
+
+
+              </node>
+              <node id="2" name="dsrAuthServerAddressTableIpAddress" type="ipAddress" accessibility="rw" status="mandatory" typeSymbol="IpAddress">
+
+                <sizeConstraint min="4" max="4" />
+
+
+              </node>
+              <node id="3" name="dsrAuthServerAddressTableInetAddressType" type="int" accessibility="rw" status="mandatory" typeSymbol="InetAddressType">
+
+                <valueConstraint value="0" />
+                <valueConstraint value="16" />
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+                <valueConstraint value="4" />
+
+                <symbol name="dns" value="16" />
+                <symbol name="ipv4" value="1" />
+                <symbol name="ipv4z" value="3" />
+                <symbol name="ipv6" value="2" />
+                <symbol name="ipv6z" value="4" />
+                <symbol name="unknown" value="0" />
+
+
+              </node>
+              <node id="4" name="dsrAuthServerAddressTableInetAddress" type="ascii" accessibility="rw" status="mandatory" typeSymbol="DisplayString">
+
+                <sizeConstraint min="0" max="256" />
+
+
+              </node>
+
+            </node>
+
+          </node>
+          <node id="33" name="dsrPppParms" type="node" accessibility="na" status="unknown">
+
+            <node id="1" name="dsrPPPControl" type="int" accessibility="rw" status="mandatory">
+
+              <valueConstraint value="1" />
+              <valueConstraint value="2" />
+
+              <symbol name="disabled" value="1" />
+              <symbol name="enabled" value="2" />
+
+
+            </node>
+            <node id="2" name="dsrPPPLocalIPAddress" type="ipAddress" accessibility="ro" status="deprecated" typeSymbol="IpAddress">
+
+              <sizeConstraint min="4" max="4" />
+
+
+            </node>
+            <node id="3" name="dsrPPPRemoteIPAddress" type="ipAddress" accessibility="ro" status="deprecated" typeSymbol="IpAddress">
+
+              <sizeConstraint min="4" max="4" />
+
+
+            </node>
+            <node id="4" name="dsrPppSubnetMask" type="ipAddress" accessibility="ro" status="mandatory" typeSymbol="IpAddress">
+
+              <sizeConstraint min="4" max="4" />
+
+
+            </node>
+            <node id="5" name="dsrPppGateway" type="ipAddress" accessibility="ro" status="deprecated" typeSymbol="IpAddress">
+
+              <sizeConstraint min="4" max="4" />
+
+
+            </node>
+            <node id="6" name="dsrPppAuthenticationTimeout" type="int" accessibility="rw" status="mandatory">
+
+              <rangeConstraint min="30" max="300" />
+
+
+            </node>
+            <node id="7" name="dsrPppInactivityTimeout" type="int" accessibility="rw" status="mandatory">
+
+              <rangeConstraint min="1" max="60" />
+
+
+            </node>
+            <node id="8" name="dsrPPPLocalInetAddress" type="ascii" accessibility="ro" status="mandatory" typeSymbol="DisplayString">
+
+              <sizeConstraint min="0" max="256" />
+
+
+            </node>
+            <node id="9" name="dsrPPPRemoteInetAddress" type="ascii" accessibility="ro" status="mandatory" typeSymbol="DisplayString">
+
+              <sizeConstraint min="0" max="256" />
+
+
+            </node>
+            <node id="10" name="dsrPppInetGateway" type="ascii" accessibility="ro" status="mandatory" typeSymbol="DisplayString">
+
+              <sizeConstraint min="0" max="256" />
+
+
+            </node>
+
+          </node>
+          <node id="34" name="dsrDhcpControl" type="int" accessibility="rw" status="mandatory">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+
+            <symbol name="disabled" value="1" />
+            <symbol name="enabled" value="2" />
+
+
+          </node>
+          <node id="35" name="dsrDsSecurityMode" type="int" accessibility="rw" status="mandatory">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+
+            <symbol name="secure" value="2" />
+            <symbol name="trustall" value="1" />
+
+
+          </node>
+          <node id="36" name="dsrDsSecurityCredentials" type="int" accessibility="ro" status="mandatory">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+
+            <symbol name="assigned" value="2" />
+            <symbol name="unassigned" value="1" />
+
+
+          </node>
+          <node id="37" name="dsrNameChangedCounter" type="int" accessibility="ro" status="mandatory" typeSymbol="Counter">
+
+            <rangeConstraint min="0" max="2147483647" />
+
+
+          </node>
+          <node id="38" name="dsrTopologyChangedCounter" type="int" accessibility="ro" status="mandatory" typeSymbol="Counter">
+
+            <rangeConstraint min="0" max="2147483647" />
+
+
+          </node>
+          <node id="39" name="dsrModifiedServerName" type="utf8" accessibility="wo" status="mandatory" typeSymbol="UTF8String">
+
+            <sizeConstraint min="0" max="64" />
+
+
+          </node>
+          <node id="40" name="dsrServerInputPort" type="int" accessibility="wo" status="mandatory">
+
+
+          </node>
+          <node id="41" name="dsrServerRipId" type="ascii" accessibility="wo" status="mandatory" typeSymbol="DisplayString">
+
+            <sizeConstraint min="0" max="32" />
+
+
+          </node>
+          <node id="42" name="dsrServerSwitchChannel" type="int" accessibility="wo" status="mandatory">
+
+
+          </node>
+          <node id="43" name="dsrUpdateServerTableControl" type="int" accessibility="wo" status="mandatory">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+
+            <symbol name="modify" value="2" />
+            <symbol name="noAction" value="1" />
+
+
+          </node>
+          <node id="44" name="dsrLongNameDisplayMode" type="int" accessibility="rw" status="mandatory">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+
+            <symbol name="firstNchars" value="1" />
+            <symbol name="lastNchars" value="2" />
+
+
+          </node>
+          <node id="45" name="dsrInetAddressType" type="int" accessibility="ro" status="mandatory" typeSymbol="InetAddressType">
+
+            <valueConstraint value="0" />
+            <valueConstraint value="16" />
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+            <valueConstraint value="3" />
+            <valueConstraint value="4" />
+
+            <symbol name="dns" value="16" />
+            <symbol name="ipv4" value="1" />
+            <symbol name="ipv4z" value="3" />
+            <symbol name="ipv6" value="2" />
+            <symbol name="ipv6z" value="4" />
+            <symbol name="unknown" value="0" />
+
+
+          </node>
+          <node id="46" name="dsrInetAddress" type="ascii" accessibility="rw" status="mandatory" typeSymbol="DisplayString">
+
+            <sizeConstraint min="0" max="256" />
+
+
+          </node>
+          <node id="47" name="dsrNetworkPrefixLength" type="int" accessibility="rw" status="mandatory">
+
+            <rangeConstraint min="1" max="128" />
+
+
+          </node>
+          <node id="48" name="dsrInetGatewayType" type="int" accessibility="ro" status="mandatory" typeSymbol="InetAddressType">
+
+            <valueConstraint value="0" />
+            <valueConstraint value="16" />
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+            <valueConstraint value="3" />
+            <valueConstraint value="4" />
+
+            <symbol name="dns" value="16" />
+            <symbol name="ipv4" value="1" />
+            <symbol name="ipv4z" value="3" />
+            <symbol name="ipv6" value="2" />
+            <symbol name="ipv6z" value="4" />
+            <symbol name="unknown" value="0" />
+
+
+          </node>
+          <node id="49" name="dsrInetGateway" type="ascii" accessibility="rw" status="mandatory" typeSymbol="DisplayString">
+
+            <sizeConstraint min="0" max="256" />
+
+
+          </node>
+          <node id="50" name="dsrAutoAddDsviewServer" type="ascii" accessibility="rw" status="mandatory" typeSymbol="DisplayString">
+
+            <sizeConstraint min="0" max="256" />
+
+
+          </node>
+          <node id="51" name="dsrAutoAddRetryInterval" type="int" accessibility="rw" status="mandatory">
+
+
+          </node>
+          <node id="52" name="dsrOscarConfigurationControl" type="int" accessibility="rw" status="mandatory">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+
+            <symbol name="disabled" value="1" />
+            <symbol name="enabled" value="2" />
+
+
+          </node>
+
+        </node>
+        <node id="2" name="dsrRip" type="node" accessibility="na" status="unknown">
+
+          <node id="1" name="dsrInputPortTotal" type="int" accessibility="ro" status="mandatory">
+
+
+          </node>
+          <node id="2" name="dsrRipTable" type="sequenceOfType" accessibility="na" status="mandatory">
+
+            <node id="1" name="dsrRipTableEntry" type="sequenceOfType" accessibility="na" status="mandatory" typeSymbol="DsrRipTableEntry">
+
+              <index oid="1.3.6.1.4.1.10418.7.2.2.2.1.1" />
+
+              <node id="1" name="dsrRipTableIndex" type="int" accessibility="ro" status="mandatory">
+
+
+              </node>
+              <node id="2" name="dsrRipTableVendor" type="int" accessibility="ro" status="mandatory" typeSymbol="RipVendorEnum">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+                <valueConstraint value="4" />
+                <valueConstraint value="5" />
+                <valueConstraint value="6" />
+                <valueConstraint value="7" />
+                <valueConstraint value="8" />
+
+                <symbol name="avocentAVR" value="1" />
+                <symbol name="avocentDSR" value="2" />
+                <symbol name="blackbox" value="8" />
+                <symbol name="dell" value="4" />
+                <symbol name="fujitsuSiemens" value="6" />
+                <symbol name="hp" value="3" />
+                <symbol name="ibm" value="5" />
+                <symbol name="wrightline" value="7" />
+
+
+              </node>
+              <node id="3" name="dsrRipTableInterfaceType" type="int" accessibility="ro" status="mandatory" typeSymbol="RipInterfaceTypeEnum">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+                <valueConstraint value="4" />
+                <valueConstraint value="5" />
+                <valueConstraint value="6" />
+                <valueConstraint value="7" />
+                <valueConstraint value="8" />
+                <valueConstraint value="9" />
+                <valueConstraint value="10" />
+                <valueConstraint value="11" />
+
+                <symbol name="c2t" value="5" />
+                <symbol name="hpBlade" value="11" />
+                <symbol name="kco" value="4" />
+                <symbol name="ps2" value="1" />
+                <symbol name="ps2m" value="10" />
+                <symbol name="serial" value="7" />
+                <symbol name="sic" value="6" />
+                <symbol name="sun" value="2" />
+                <symbol name="uco" value="8" />
+                <symbol name="usb" value="3" />
+                <symbol name="usb2" value="9" />
+
+
+              </node>
+              <node id="4" name="dsrRipTableInputPort" type="int" accessibility="ro" status="mandatory">
+
+
+              </node>
+              <node id="5" name="dsrRipTableId" type="ascii" accessibility="ro" status="mandatory" typeSymbol="DisplayString">
+
+                <sizeConstraint min="0" max="32" />
+
+
+              </node>
+              <node id="6" name="dsrRipTableSwitchType" type="int" accessibility="ro" status="mandatory" typeSymbol="CascadeSwitchTypeEnum">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+                <valueConstraint value="4" />
+
+                <symbol name="autoview2000" value="3" />
+                <symbol name="dellBlade" value="4" />
+                <symbol name="none" value="1" />
+                <symbol name="unknownType" value="2" />
+
+
+              </node>
+              <node id="7" name="dsrRipTableConnectionLevel" type="int" accessibility="ro" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="9999" />
+
+                <symbol name="levelOne" value="1" />
+                <symbol name="levelTwo" value="2" />
+                <symbol name="unknown" value="9999" />
+
+
+              </node>
+              <node id="8" name="dsrRipTableSwitchChannels" type="int" accessibility="ro" status="mandatory">
+
+
+              </node>
+              <node id="9" name="dsrRipTableStatus" type="int" accessibility="ro" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+
+                <symbol name="offline" value="1" />
+                <symbol name="online" value="2" />
+
+
+              </node>
+              <node id="10" name="dsrRipTableUpgradeControl" type="int" accessibility="rw" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+
+                <symbol name="noAction" value="1" />
+                <symbol name="upgrade" value="2" />
+
+
+              </node>
+              <node id="11" name="dsrRipTableUpgradeStatus" type="int" accessibility="ro" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+                <valueConstraint value="4" />
+
+                <symbol name="failed" value="4" />
+                <symbol name="inProgress" value="2" />
+                <symbol name="ready" value="1" />
+                <symbol name="succeeded" value="3" />
+
+
+              </node>
+              <node id="12" name="dsrRipTableUpgradeFailReason" type="int" accessibility="ro" status="mandatory" typeSymbol="RipUpgradeFailReasonEnum">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="9999" />
+                <valueConstraint value="3" />
+
+                <symbol name="ripUpgradeFailedRestart" value="3" />
+                <symbol name="ripUpgradeLostContact" value="2" />
+                <symbol name="ripUpgradeNoFirmwareImage" value="1" />
+                <symbol name="ripUpgradeNoStatus" value="9999" />
+
+
+              </node>
+              <node id="13" name="dsrRipTableBootImageVersion" type="ascii" accessibility="ro" status="mandatory" typeSymbol="DisplayString">
+
+                <sizeConstraint min="0" max="32" />
+
+
+              </node>
+              <node id="14" name="dsrRipTableAppImageVersion" type="ascii" accessibility="ro" status="mandatory" typeSymbol="DisplayString">
+
+                <sizeConstraint min="0" max="32" />
+
+
+              </node>
+              <node id="15" name="dsrRipTableHardwareVersion" type="ascii" accessibility="ro" status="mandatory" typeSymbol="DisplayString">
+
+                <sizeConstraint min="0" max="32" />
+
+
+              </node>
+              <node id="16" name="dsrRipTableFPGAVersion" type="ascii" accessibility="ro" status="mandatory" typeSymbol="DisplayString">
+
+                <sizeConstraint min="0" max="32" />
+
+
+              </node>
+              <node id="17" name="dsrRipTableAppVersionAvailable" type="ascii" accessibility="ro" status="mandatory" typeSymbol="DisplayString">
+
+                <sizeConstraint min="0" max="32" />
+
+
+              </node>
+              <node id="18" name="dsrRipTableUsbSpeed" type="int" accessibility="rw" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+
+                <symbol name="usb11" value="1" />
+                <symbol name="usb20" value="2" />
+
+
+              </node>
+              <node id="19" name="dsrRipTableVmAllowed" type="int" accessibility="ro" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+
+                <symbol name="disabled" value="1" />
+                <symbol name="enabled" value="2" />
+
+
+              </node>
+
+            </node>
+
+          </node>
+          <node id="3" name="dsrDeleteOfflineRips" type="int" accessibility="ro" status="mandatory">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+
+            <symbol name="delete" value="2" />
+            <symbol name="noAction" value="1" />
+
+
+          </node>
+          <node id="4" name="dsrRipKeyboardLanguage" type="int" accessibility="rw" status="mandatory">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+            <valueConstraint value="3" />
+            <valueConstraint value="4" />
+            <valueConstraint value="5" />
+            <valueConstraint value="6" />
+            <valueConstraint value="7" />
+            <valueConstraint value="8" />
+            <valueConstraint value="9" />
+            <valueConstraint value="10" />
+            <valueConstraint value="11" />
+            <valueConstraint value="12" />
+            <valueConstraint value="13" />
+            <valueConstraint value="14" />
+            <valueConstraint value="15" />
+            <valueConstraint value="17" />
+            <valueConstraint value="16" />
+            <valueConstraint value="19" />
+            <valueConstraint value="18" />
+
+            <symbol name="danish" value="2" />
+            <symbol name="finnish" value="18" />
+            <symbol name="french" value="5" />
+            <symbol name="french-canadian" value="10" />
+            <symbol name="german" value="3" />
+            <symbol name="italian" value="6" />
+            <symbol name="japanese" value="7" />
+            <symbol name="korean" value="11" />
+            <symbol name="netherlands" value="8" />
+            <symbol name="norwegian" value="12" />
+            <symbol name="portuguese" value="9" />
+            <symbol name="spanish" value="4" />
+            <symbol name="swedish" value="13" />
+            <symbol name="swiss-french" value="14" />
+            <symbol name="swiss-german" value="15" />
+            <symbol name="taiwanese" value="16" />
+            <symbol name="uk" value="17" />
+            <symbol name="us" value="1" />
+            <symbol name="us-unix" value="19" />
+
+
+          </node>
+
+        </node>
+        <node id="3" name="dsrSession" type="node" accessibility="na" status="unknown">
+
+          <node id="1" name="dsrGlobalSessionTimeout" type="int" accessibility="rw" status="mandatory">
+
+            <rangeConstraint min="0" max="90" />
+
+
+          </node>
+          <node id="2" name="dsrSessionTable" type="sequenceOfType" accessibility="na" status="mandatory">
+
+            <node id="1" name="dsrSessionTableEntry" type="sequenceOfType" accessibility="na" status="mandatory" typeSymbol="DsrSessionTableEntry">
+
+              <index oid="1.3.6.1.4.1.10418.7.2.3.2.1.1" />
+
+              <node id="1" name="dsrSessionTableIndex" type="int" accessibility="ro" status="mandatory">
+
+
+              </node>
+              <node id="2" name="dsrSessionTableControl" type="int" accessibility="rw" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+
+                <symbol name="noAction" value="1" />
+                <symbol name="terminate" value="2" />
+
+
+              </node>
+              <node id="3" name="dsrSessionTableDuration" type="int" accessibility="ro" status="mandatory">
+
+
+              </node>
+              <node id="4" name="dsrSessionTableInputPort" type="int" accessibility="ro" status="mandatory">
+
+
+              </node>
+              <node id="5" name="dsrSessionTableRipId" type="ascii" accessibility="ro" status="mandatory" typeSymbol="DisplayString">
+
+                <sizeConstraint min="0" max="32" />
+
+
+              </node>
+              <node id="6" name="dsrSessionTableSwitchChannel" type="int" accessibility="ro" status="mandatory">
+
+
+              </node>
+              <node id="7" name="dsrSessionTableServerName" type="utf8" accessibility="ro" status="mandatory" typeSymbol="UTF8String">
+
+                <sizeConstraint min="0" max="64" />
+
+
+              </node>
+              <node id="8" name="dsrSessionTableUserName" type="utf8" accessibility="ro" status="mandatory" typeSymbol="UTF8String">
+
+                <sizeConstraint min="0" max="16" />
+
+
+              </node>
+              <node id="9" name="dsrSessionTableClientIPAddress" type="ipAddress" accessibility="ro" status="deprecated" typeSymbol="IpAddress">
+
+                <sizeConstraint min="4" max="4" />
+
+
+              </node>
+              <node id="10" name="dsrSessionTablePreemptionLevel" type="int" accessibility="ro" status="mandatory">
+
+                <rangeConstraint min="1" max="4" />
+
+
+              </node>
+              <node id="11" name="dsrSessionTableMode" type="int" accessibility="ro" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+                <valueConstraint value="4" />
+                <valueConstraint value="5" />
+                <valueConstraint value="6" />
+
+                <symbol name="exclusive" value="2" />
+                <symbol name="normal" value="1" />
+                <symbol name="scan" value="5" />
+                <symbol name="sharingInteractive" value="3" />
+                <symbol name="sharingPassive" value="4" />
+                <symbol name="stealth" value="6" />
+
+
+              </node>
+              <node id="12" name="dsrSessionTableOwner" type="int" accessibility="ro" status="mandatory">
+
+
+              </node>
+              <node id="13" name="dsrSessionTableType" type="int" accessibility="ro" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+
+                <symbol name="viewer" value="1" />
+                <symbol name="virtualMedia" value="2" />
+
+
+              </node>
+              <node id="14" name="dsrSessionTableLockIndex" type="int" accessibility="ro" status="mandatory">
+
+
+              </node>
+              <node id="15" name="dsrSessionTableClientInetAddress" type="ascii" accessibility="ro" status="mandatory" typeSymbol="DisplayString">
+
+                <sizeConstraint min="0" max="256" />
+
+
+              </node>
+
+            </node>
+
+          </node>
+          <node id="3" name="dsrDefaultPreemptionLevel" type="int" accessibility="rw" status="mandatory">
+
+            <rangeConstraint min="1" max="4" />
+
+
+          </node>
+          <node id="4" name="dsrAggregateSessionStatus" type="int" accessibility="ro" status="mandatory">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+
+            <symbol name="active" value="2" />
+            <symbol name="idle" value="1" />
+
+
+          </node>
+          <node id="5" name="dsrSessionPppPreemptionControl" type="int" accessibility="rw" status="mandatory">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+
+            <symbol name="disabled" value="1" />
+            <symbol name="enabled" value="2" />
+
+
+          </node>
+          <node id="6" name="dsrSessionVideoNoiseControl" type="int" accessibility="rw" status="mandatory">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+
+            <symbol name="disabled" value="1" />
+            <symbol name="enabled" value="2" />
+
+
+          </node>
+          <node id="7" name="dsrLoginTimeout" type="int" accessibility="rw" status="mandatory">
+
+            <rangeConstraint min="20" max="120" />
+
+
+          </node>
+
+        </node>
+        <node id="4" name="dsrUser" type="node" accessibility="na" status="unknown">
+
+          <node id="1" name="dsrUserName" type="utf8" accessibility="rw" status="mandatory" typeSymbol="UTF8String">
+
+            <sizeConstraint min="3" max="16" />
+
+
+          </node>
+          <node id="2" name="dsrUserPassword" type="utf8" accessibility="rw" status="mandatory" typeSymbol="UTF8String">
+
+            <sizeConstraint min="3" max="16" />
+
+
+          </node>
+          <node id="3" name="dsrUserPreemptionLevel" type="int" accessibility="rw" status="mandatory">
+
+            <rangeConstraint min="1" max="4" />
+
+
+          </node>
+          <node id="4" name="dsrModifiedUserName" type="utf8" accessibility="rw" status="mandatory" typeSymbol="UTF8String">
+
+            <sizeConstraint min="3" max="16" />
+
+
+          </node>
+          <node id="5" name="dsrUpdateUserTableControl" type="int" accessibility="rw" status="mandatory">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+            <valueConstraint value="3" />
+            <valueConstraint value="4" />
+            <valueConstraint value="5" />
+            <valueConstraint value="6" />
+
+            <symbol name="addUser" value="2" />
+            <symbol name="clearUserAccess" value="5" />
+            <symbol name="deleteUser" value="4" />
+            <symbol name="modifyUser" value="3" />
+            <symbol name="noAction" value="1" />
+            <symbol name="setUserAccess" value="6" />
+
+
+          </node>
+          <node id="6" name="dsrUserAccessLevel" type="int" accessibility="rw" status="mandatory">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+            <valueConstraint value="3" />
+
+            <symbol name="administrator" value="2" />
+            <symbol name="applianceAdministrator" value="3" />
+            <symbol name="user" value="1" />
+
+
+          </node>
+          <node id="7" name="dsrUserRipId" type="ascii" accessibility="rw" status="mandatory" typeSymbol="DisplayString">
+
+            <sizeConstraint min="0" max="32" />
+
+
+          </node>
+          <node id="8" name="dsrUserChannel" type="int" accessibility="rw" status="mandatory">
+
+
+          </node>
+          <node id="9" name="dsrUserSpcDevicePortNumber" type="int" accessibility="rw" status="mandatory">
+
+
+          </node>
+          <node id="10" name="dsrUserSpcSocketNumber" type="int" accessibility="rw" status="mandatory">
+
+
+          </node>
+          <node id="11" name="dsrUserTable" type="sequenceOfType" accessibility="na" status="mandatory">
+
+            <node id="1" name="dsrUserTableEntry" type="sequenceOfType" accessibility="na" status="mandatory" typeSymbol="DsrUserTableEntry">
+
+              <index oid="1.3.6.1.4.1.10418.7.2.4.11.1.1" />
+
+              <node id="1" name="dsrUserTableIndex" type="int" accessibility="ro" status="mandatory">
+
+                <rangeConstraint min="1" max="64" />
+
+
+              </node>
+              <node id="2" name="dsrUserTableName" type="utf8" accessibility="ro" status="mandatory" typeSymbol="UTF8String">
+
+                <sizeConstraint min="0" max="16" />
+
+
+              </node>
+              <node id="3" name="dsrUserTablePassword" type="utf8" accessibility="ro" status="mandatory" typeSymbol="UTF8String">
+
+                <sizeConstraint min="0" max="16" />
+
+
+              </node>
+              <node id="4" name="dsrUserTablePreemptionLevel" type="int" accessibility="rw" status="mandatory">
+
+                <rangeConstraint min="1" max="4" />
+
+
+              </node>
+              <node id="5" name="dsrUserTableAccessLevel" type="int" accessibility="ro" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+
+                <symbol name="administrator" value="2" />
+                <symbol name="applianceAdministrator" value="3" />
+                <symbol name="user" value="1" />
+
+
+              </node>
+
+            </node>
+
+          </node>
+
+        </node>
+        <node id="5" name="dsrSnmp" type="node" accessibility="na" status="unknown">
+
+          <node id="1" name="dsrSnmpControl" type="int" accessibility="rw" status="mandatory">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+
+            <symbol name="disabled" value="1" />
+            <symbol name="enabled" value="2" />
+
+
+          </node>
+          <node id="2" name="dsrWriteCommunity" type="ascii" accessibility="rw" status="mandatory" typeSymbol="DisplayString">
+
+            <sizeConstraint min="0" max="64" />
+
+
+          </node>
+          <node id="3" name="dsrReadCommunity" type="ascii" accessibility="rw" status="mandatory" typeSymbol="DisplayString">
+
+            <sizeConstraint min="0" max="64" />
+
+
+          </node>
+          <node id="4" name="dsrTrapCommunity" type="ascii" accessibility="rw" status="mandatory" typeSymbol="DisplayString">
+
+            <sizeConstraint min="0" max="64" />
+
+
+          </node>
+          <node id="5" name="dsrAllowedSnmpManagerTable" type="sequenceOfType" accessibility="na" status="mandatory">
+
+            <node id="1" name="dsrAllowedSnmpManagerTableEntry" type="sequenceOfType" accessibility="na" status="mandatory" typeSymbol="DsrAllowedSnmpManagerTableEntry">
+
+              <index oid="1.3.6.1.4.1.10418.7.2.5.5.1.1" />
+
+              <node id="1" name="dsrAllowedSnmpManagerTableIndex" type="int" accessibility="ro" status="mandatory">
+
+                <rangeConstraint min="1" max="4" />
+
+
+              </node>
+              <node id="2" name="dsrAllowedSnmpManagerTableIPAddress" type="ipAddress" accessibility="rw" status="mandatory" typeSymbol="IpAddress">
+
+                <sizeConstraint min="4" max="4" />
+
+
+              </node>
+              <node id="3" name="dsrAllowedSnmpManagerTableInetAddressType" type="int" accessibility="rw" status="mandatory" typeSymbol="InetAddressType">
+
+                <valueConstraint value="0" />
+                <valueConstraint value="16" />
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+                <valueConstraint value="4" />
+
+                <symbol name="dns" value="16" />
+                <symbol name="ipv4" value="1" />
+                <symbol name="ipv4z" value="3" />
+                <symbol name="ipv6" value="2" />
+                <symbol name="ipv6z" value="4" />
+                <symbol name="unknown" value="0" />
+
+
+              </node>
+              <node id="4" name="dsrAllowedSnmpManagerTableInetAddress" type="ascii" accessibility="rw" status="mandatory" typeSymbol="DisplayString">
+
+                <sizeConstraint min="0" max="256" />
+
+
+              </node>
+
+            </node>
+
+          </node>
+          <node id="6" name="dsrTrapHostTable" type="sequenceOfType" accessibility="na" status="mandatory">
+
+            <node id="1" name="dsrTrapHostTableEntry" type="sequenceOfType" accessibility="na" status="mandatory" typeSymbol="DsrTrapHostTableEntry">
+
+              <index oid="1.3.6.1.4.1.10418.7.2.5.6.1.1" />
+
+              <node id="1" name="dsrTrapHostTableIndex" type="int" accessibility="ro" status="mandatory">
+
+                <rangeConstraint min="1" max="4" />
+
+
+              </node>
+              <node id="2" name="dsrTrapHostTableIPAddress" type="ipAddress" accessibility="rw" status="mandatory" typeSymbol="IpAddress">
+
+                <sizeConstraint min="4" max="4" />
+
+
+              </node>
+              <node id="3" name="dsrTrapHostTableInetAddressType" type="int" accessibility="rw" status="mandatory" typeSymbol="InetAddressType">
+
+                <valueConstraint value="0" />
+                <valueConstraint value="16" />
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+                <valueConstraint value="4" />
+
+                <symbol name="dns" value="16" />
+                <symbol name="ipv4" value="1" />
+                <symbol name="ipv4z" value="3" />
+                <symbol name="ipv6" value="2" />
+                <symbol name="ipv6z" value="4" />
+                <symbol name="unknown" value="0" />
+
+
+              </node>
+              <node id="4" name="dsrTrapHostTableInetAddress" type="ascii" accessibility="rw" status="mandatory" typeSymbol="DisplayString">
+
+                <sizeConstraint min="0" max="256" />
+
+
+              </node>
+
+            </node>
+
+          </node>
+          <node id="7" name="dsrTrapCfgTable" type="sequenceOfType" accessibility="na" status="mandatory">
+
+            <node id="1" name="dsrTrapCfgTableEntry" type="sequenceOfType" accessibility="na" status="mandatory" typeSymbol="DsrTrapCfgTableEntry">
+
+              <index oid="1.3.6.1.4.1.10418.7.2.5.7.1.1" />
+
+              <node id="1" name="dsrTrapCfgTableIndex" type="int" accessibility="ro" status="mandatory" typeSymbol="TrapTypeEnum">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+                <valueConstraint value="4" />
+                <valueConstraint value="5" />
+                <valueConstraint value="6" />
+                <valueConstraint value="7" />
+                <valueConstraint value="8" />
+                <valueConstraint value="9" />
+                <valueConstraint value="10" />
+                <valueConstraint value="11" />
+                <valueConstraint value="12" />
+                <valueConstraint value="13" />
+                <valueConstraint value="14" />
+                <valueConstraint value="15" />
+                <valueConstraint value="17" />
+                <valueConstraint value="16" />
+                <valueConstraint value="19" />
+                <valueConstraint value="18" />
+                <valueConstraint value="21" />
+                <valueConstraint value="20" />
+                <valueConstraint value="23" />
+                <valueConstraint value="22" />
+                <valueConstraint value="25" />
+                <valueConstraint value="24" />
+                <valueConstraint value="27" />
+                <valueConstraint value="26" />
+                <valueConstraint value="29" />
+                <valueConstraint value="28" />
+                <valueConstraint value="31" />
+                <valueConstraint value="30" />
+                <valueConstraint value="34" />
+                <valueConstraint value="35" />
+                <valueConstraint value="32" />
+                <valueConstraint value="33" />
+                <valueConstraint value="38" />
+                <valueConstraint value="39" />
+                <valueConstraint value="36" />
+                <valueConstraint value="37" />
+                <valueConstraint value="42" />
+                <valueConstraint value="43" />
+                <valueConstraint value="40" />
+                <valueConstraint value="41" />
+                <valueConstraint value="46" />
+                <valueConstraint value="47" />
+                <valueConstraint value="44" />
+                <valueConstraint value="45" />
+                <valueConstraint value="51" />
+                <valueConstraint value="50" />
+                <valueConstraint value="49" />
+                <valueConstraint value="48" />
+                <valueConstraint value="55" />
+                <valueConstraint value="54" />
+                <valueConstraint value="53" />
+                <valueConstraint value="52" />
+                <valueConstraint value="59" />
+                <valueConstraint value="58" />
+                <valueConstraint value="57" />
+                <valueConstraint value="56" />
+                <valueConstraint value="63" />
+                <valueConstraint value="62" />
+                <valueConstraint value="61" />
+                <valueConstraint value="60" />
+                <valueConstraint value="64" />
+                <valueConstraint value="65" />
+
+                <symbol name="aggregatedServerStatusChanged" value="16" />
+                <symbol name="cascadeSwitchAdded" value="33" />
+                <symbol name="cascadeSwitchNameChanged" value="32" />
+                <symbol name="cascadeSwitchRemoved" value="34" />
+                <symbol name="coldStart" value="1" />
+                <symbol name="configurationFileLoaded" value="28" />
+                <symbol name="factoryDefaultsSet" value="30" />
+                <symbol name="imageFileUpgradeResult" value="18" />
+                <symbol name="imageFileUpgradeStarted" value="17" />
+                <symbol name="linkDown" value="3" />
+                <symbol name="linkUp" value="4" />
+                <symbol name="localPortViewingStarted" value="10" />
+                <symbol name="localPortViewingStopped" value="11" />
+                <symbol name="localPortViewingTerminated" value="12" />
+                <symbol name="localPortVirtualMediaSessionStarted" value="50" />
+                <symbol name="localPortVirtualMediaSessionStopped" value="51" />
+                <symbol name="localPortVirtualMediaSessionTerminated" value="52" />
+                <symbol name="rebootStarted" value="6" />
+                <symbol name="ripAdded" value="13" />
+                <symbol name="ripImageUpgradeResult" value="20" />
+                <symbol name="ripImageUpgradeStarted" value="19" />
+                <symbol name="ripMoved" value="59" />
+                <symbol name="ripRemoved" value="14" />
+                <symbol name="ripRestarted" value="21" />
+                <symbol name="screenResolutionChanged" value="15" />
+                <symbol name="serverNameChanged" value="31" />
+                <symbol name="snmpAuthenticationFailure" value="5" />
+                <symbol name="spcDeviceLoginError" value="37" />
+                <symbol name="spcDeviceNameChanged" value="57" />
+                <symbol name="spcDeviceOffline" value="36" />
+                <symbol name="spcDeviceOnline" value="35" />
+                <symbol name="spcImageFileUpgradeResult" value="65" />
+                <symbol name="spcImageFileUpgradeStarted" value="64" />
+                <symbol name="spcInletNameChanged" value="58" />
+                <symbol name="spcInletTotalLoadHigh" value="55" />
+                <symbol name="spcInletTotalLoadLow" value="56" />
+                <symbol name="spcPortNameChanged" value="53" />
+                <symbol name="spcSocketLockCommand" value="60" />
+                <symbol name="spcSocketNameChanged" value="54" />
+                <symbol name="spcSocketOffCommand" value="39" />
+                <symbol name="spcSocketOffSenseFailure" value="42" />
+                <symbol name="spcSocketOnCommand" value="38" />
+                <symbol name="spcSocketOnSenseFailure" value="41" />
+                <symbol name="spcSocketRebootCommand" value="40" />
+                <symbol name="spcSocketUnlockCommand" value="61" />
+                <symbol name="spcStatusSocketLock" value="62" />
+                <symbol name="spcStatusSocketOff" value="46" />
+                <symbol name="spcStatusSocketOn" value="45" />
+                <symbol name="spcStatusSocketUnlock" value="63" />
+                <symbol name="spcTotalLoadHigh" value="43" />
+                <symbol name="spcTotalLoadLow" value="44" />
+                <symbol name="userAdded" value="23" />
+                <symbol name="userAuthFailure" value="22" />
+                <symbol name="userDatabaseFileLoaded" value="29" />
+                <symbol name="userDeleted" value="24" />
+                <symbol name="userLogin" value="26" />
+                <symbol name="userLogout" value="27" />
+                <symbol name="userModified" value="25" />
+                <symbol name="videoSessionStarted" value="7" />
+                <symbol name="videoSessionStopped" value="8" />
+                <symbol name="videoSessionTerminated" value="9" />
+                <symbol name="virtualMediaSessionStarted" value="47" />
+                <symbol name="virtualMediaSessionStopped" value="48" />
+                <symbol name="virtualMediaSessionTerminated" value="49" />
+                <symbol name="warmStart" value="2" />
+
+
+              </node>
+              <node id="2" name="dsrTrapCfgTableControl" type="int" accessibility="rw" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+
+                <symbol name="disabled" value="1" />
+                <symbol name="enabled" value="2" />
+
+
+              </node>
+
+            </node>
+
+          </node>
+          <node id="8" name="dsrAsmpSessionStatusTable" type="sequenceOfType" accessibility="na" status="mandatory">
+
+            <node id="1" name="dsrAsmpSessionStatusTableEntry" type="sequenceOfType" accessibility="na" status="mandatory" typeSymbol="DsrAsmpSessionStatusTableEntry">
+
+              <index oid="1.3.6.1.4.1.10418.7.2.5.8.1.1" />
+
+              <node id="1" name="dsrAsmpSessionStatusTableIndex" type="int" accessibility="ro" status="mandatory">
+
+
+              </node>
+              <node id="2" name="dsrAsmpSessionStatusTableIPAddress" type="ascii" accessibility="ro" status="mandatory" typeSymbol="DisplayString">
+
+
+              </node>
+              <node id="3" name="dsrAsmpSessionStatusTableTcpPort" type="int" accessibility="ro" status="mandatory">
+
+                <rangeConstraint min="1" max="65535" />
+
+
+              </node>
+              <node id="4" name="dsrAsmpSessionStatusTableRebootRequired" type="int" accessibility="ro" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+
+                <symbol name="no" value="1" />
+                <symbol name="yes" value="2" />
+
+
+              </node>
+
+            </node>
+
+          </node>
+          <node id="9" name="dsrRebootRequired" type="int" accessibility="ro" status="mandatory">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+
+            <symbol name="no" value="1" />
+            <symbol name="yes" value="2" />
+
+
+          </node>
+
+        </node>
+        <node id="6" name="dsrTrapObject" type="node" accessibility="na" status="unknown">
+
+
+        </node>
+        <node id="7" name="dsrSerial" type="node" accessibility="na" status="unknown">
+
+          <node id="1" name="dsrSerialPortTotal" type="int" accessibility="ro" status="mandatory">
+
+
+          </node>
+          <node id="2" name="dsrSerialTable" type="sequenceOfType" accessibility="na" status="mandatory">
+
+            <node id="1" name="dsrSerialTableEntry" type="sequenceOfType" accessibility="na" status="mandatory" typeSymbol="DsrSerialTableEntry">
+
+              <index oid="1.3.6.1.4.1.10418.7.2.7.2.1.1" />
+              <index oid="1.3.6.1.4.1.10418.7.2.7.2.1.2" />
+
+              <node id="1" name="dsrSerialTableTypeIndex" type="int" accessibility="rw" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+
+                <symbol name="cli" value="1" />
+                <symbol name="modem" value="2" />
+                <symbol name="spc" value="3" />
+
+
+              </node>
+              <node id="2" name="dsrSerialTablePortIndex" type="int" accessibility="ro" status="mandatory">
+
+
+              </node>
+              <node id="3" name="dsrSerialTableBaudRate" type="int" accessibility="rw" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+                <valueConstraint value="4" />
+
+                <symbol name="bps19200" value="2" />
+                <symbol name="bps38400" value="3" />
+                <symbol name="bps57600" value="4" />
+                <symbol name="bps9600" value="1" />
+
+
+              </node>
+              <node id="4" name="dsrSerialTableFlowControl" type="int" accessibility="rw" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+                <valueConstraint value="4" />
+
+                <symbol name="dtrdcd" value="4" />
+                <symbol name="none" value="1" />
+                <symbol name="rtscts" value="3" />
+                <symbol name="xonxoff" value="2" />
+
+
+              </node>
+              <node id="5" name="dsrSerialTablePortName" type="utf8" accessibility="rw" status="mandatory" typeSymbol="UTF8String">
+
+                <sizeConstraint min="0" max="64" />
+
+
+              </node>
+              <node id="6" name="dsrSerialTableTimeout" type="int" accessibility="rw" status="mandatory">
+
+                <rangeConstraint min="0" max="90" />
+
+
+              </node>
+              <node id="7" name="dsrSerialTableProtocol" type="int" accessibility="rw" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+                <valueConstraint value="4" />
+                <valueConstraint value="5" />
+
+                <symbol name="avocentSpc" value="2" />
+                <symbol name="bayTechRpc" value="4" />
+                <symbol name="cyclades" value="5" />
+                <symbol name="serverTechnologyMrScp" value="3" />
+                <symbol name="unspecified" value="1" />
+
+
+              </node>
+
+            </node>
+
+          </node>
+
+        </node>
+        <node id="8" name="dsrSpc" type="node" accessibility="na" status="unknown">
+
+          <node id="1" name="dsrSpcDeviceTable" type="sequenceOfType" accessibility="na" status="mandatory">
+
+            <node id="1" name="dsrSpcDeviceTableEntry" type="sequenceOfType" accessibility="na" status="mandatory" typeSymbol="DsrSpcDeviceTableEntry">
+
+              <index oid="1.3.6.1.4.1.10418.7.2.8.1.1.1" />
+
+              <node id="1" name="dsrSpcDeviceTableIndex" type="int" accessibility="ro" status="mandatory">
+
+
+              </node>
+              <node id="2" name="dsrSpcDeviceTableStatus" type="int" accessibility="ro" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+                <valueConstraint value="4" />
+
+                <symbol name="loginerr" value="4" />
+                <symbol name="offline" value="2" />
+                <symbol name="online" value="3" />
+                <symbol name="pending" value="1" />
+
+
+              </node>
+              <node id="3" name="dsrSpcDeviceTableUserName" type="utf8" accessibility="rw" status="mandatory" typeSymbol="UTF8String">
+
+                <sizeConstraint min="0" max="16" />
+
+
+              </node>
+              <node id="4" name="dsrSpcDeviceTableUserPassword" type="utf8" accessibility="rw" status="mandatory" typeSymbol="UTF8String">
+
+                <sizeConstraint min="0" max="16" />
+
+
+              </node>
+              <node id="5" name="dsrSpcDeviceTableLocation" type="utf8" accessibility="rw" status="mandatory" typeSymbol="UTF8String">
+
+                <sizeConstraint min="0" max="256" />
+
+
+              </node>
+              <node id="6" name="dsrSpcDeviceTableTotalLoad" type="int" accessibility="ro" status="mandatory">
+
+                <rangeConstraint min="0" max="99999" />
+
+
+              </node>
+              <node id="7" name="dsrSpcDeviceTablePortsInstalled" type="int" accessibility="ro" status="mandatory">
+
+
+              </node>
+              <node id="8" name="dsrSpcDeviceTableVersion" type="ascii" accessibility="ro" status="mandatory" typeSymbol="DisplayString">
+
+                <sizeConstraint min="0" max="40" />
+
+
+              </node>
+              <node id="9" name="dsrSpcDeviceTableTotalLoadMin" type="int" accessibility="rw" status="mandatory">
+
+                <rangeConstraint min="0" max="30" />
+
+
+              </node>
+              <node id="10" name="dsrSpcDeviceTableTotalLoadMax" type="int" accessibility="rw" status="mandatory">
+
+                <rangeConstraint min="0" max="30" />
+
+
+              </node>
+              <node id="11" name="dsrSpcDeviceTablePollRate" type="int" accessibility="rw" status="mandatory">
+
+                <rangeConstraint min="500" max="10000" />
+
+
+              </node>
+              <node id="12" name="dsrSpcDeviceTableDescription" type="utf8" accessibility="rw" status="mandatory" typeSymbol="UTF8String">
+
+                <sizeConstraint min="0" max="256" />
+
+
+              </node>
+              <node id="13" name="dsrSpcDeviceTableCommandStatus" type="int" accessibility="ro" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+
+                <symbol name="failed" value="3" />
+                <symbol name="inProgress" value="2" />
+                <symbol name="ready" value="1" />
+
+
+              </node>
+              <node id="14" name="dsrSpcDeviceTableCommandFailReason" type="int" accessibility="ro" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+                <valueConstraint value="4" />
+                <valueConstraint value="5" />
+
+                <symbol name="commandWriteFailure" value="3" />
+                <symbol name="noFailure" value="1" />
+                <symbol name="responseIncorrect" value="5" />
+                <symbol name="responseReadFailure" value="4" />
+                <symbol name="spcOffline" value="2" />
+
+
+              </node>
+              <node id="15" name="dsrSpcDeviceTablePortNumber" type="int" accessibility="ro" status="mandatory">
+
+
+              </node>
+              <node id="16" name="dsrSpcDeviceTableSpcNumber" type="int" accessibility="ro" status="mandatory">
+
+
+              </node>
+              <node id="17" name="dsrSpcDeviceTableSpcName" type="utf8" accessibility="rw" status="mandatory" typeSymbol="UTF8String">
+
+                <sizeConstraint min="0" max="64" />
+
+
+              </node>
+              <node id="18" name="dsrSpcDeviceTableVendor" type="int" accessibility="ro" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+                <valueConstraint value="4" />
+
+                <symbol name="avocent" value="1" />
+                <symbol name="bayTech" value="3" />
+                <symbol name="cyclades" value="4" />
+                <symbol name="serverTechnology" value="2" />
+
+
+              </node>
+              <node id="19" name="dsrSpcDeviceTableModel" type="ascii" accessibility="ro" status="mandatory" typeSymbol="DisplayString">
+
+                <sizeConstraint min="0" max="256" />
+
+
+              </node>
+              <node id="20" name="dsrSpcDeviceTableInputFeeds" type="int" accessibility="ro" status="mandatory">
+
+
+              </node>
+              <node id="21" name="dsrSpcDeviceTableVoltage" type="int" accessibility="ro" status="mandatory">
+
+                <rangeConstraint min="0" max="2559" />
+
+
+              </node>
+              <node id="22" name="dsrSpcDeviceTablePower" type="int" accessibility="ro" status="mandatory">
+
+                <rangeConstraint min="0" max="9999" />
+
+
+              </node>
+              <node id="23" name="dsrSpcDeviceTableApparentPower" type="int" accessibility="ro" status="mandatory">
+
+                <rangeConstraint min="0" max="9999" />
+
+
+              </node>
+              <node id="24" name="dsrSpcDeviceTableCircuitBreakerStatus" type="int" accessibility="ro" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+
+                <symbol name="fault" value="2" />
+                <symbol name="operational" value="1" />
+
+
+              </node>
+              <node id="25" name="dsrSpcDeviceTableSequenceInterval" type="int" accessibility="rw" status="mandatory">
+
+                <rangeConstraint min="2" max="15" />
+
+
+              </node>
+              <node id="26" name="dsrSpcDeviceTableRebootDelay" type="int" accessibility="rw" status="mandatory">
+
+                <rangeConstraint min="5" max="60" />
+
+
+              </node>
+              <node id="27" name="dsrSpcDeviceTableNextInChain" type="int" accessibility="ro" status="mandatory">
+
+
+              </node>
+              <node id="28" name="dsrSpcDeviceTableAlarmThreshold" type="int" accessibility="rw" status="mandatory">
+
+                <rangeConstraint min="0" max="40" />
+
+
+              </node>
+              <node id="29" name="dsrSpcDeviceTableBuzzer" type="int" accessibility="rw" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+
+                <symbol name="disabled" value="1" />
+                <symbol name="enabled" value="2" />
+
+
+              </node>
+              <node id="30" name="dsrSpcDeviceTableOverCurrentProtection" type="int" accessibility="rw" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+
+                <symbol name="disabled" value="1" />
+                <symbol name="enabled" value="2" />
+
+
+              </node>
+              <node id="31" name="dsrSpcDeviceTableTemperature" type="ascii" accessibility="ro" status="mandatory" typeSymbol="DisplayString">
+
+                <sizeConstraint min="0" max="32" />
+
+
+              </node>
+              <node id="32" name="dsrSpcDeviceTableUpgradeFileName" type="utf8" accessibility="rw" status="mandatory" typeSymbol="UTF8String">
+
+                <sizeConstraint min="0" max="255" />
+
+
+              </node>
+              <node id="33" name="dsrSpcDeviceTableUpgradeControl" type="int" accessibility="rw" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+
+                <symbol name="asmpUpgrade" value="2" />
+                <symbol name="noAction" value="1" />
+
+
+              </node>
+              <node id="34" name="dsrSpcDeviceTableUpgradeStatus" type="int" accessibility="ro" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+                <valueConstraint value="4" />
+
+                <symbol name="failed" value="4" />
+                <symbol name="inProgress" value="2" />
+                <symbol name="ready" value="1" />
+                <symbol name="succeeded" value="3" />
+
+
+              </node>
+              <node id="35" name="dsrSpcDeviceTableUpgradeFailReason" type="int" accessibility="ro" status="mandatory" typeSymbol="ImageFileUpgradeFailReasonEnum">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+                <valueConstraint value="4" />
+                <valueConstraint value="5" />
+                <valueConstraint value="6" />
+                <valueConstraint value="7" />
+                <valueConstraint value="8" />
+                <valueConstraint value="9" />
+                <valueConstraint value="10" />
+                <valueConstraint value="11" />
+                <valueConstraint value="12" />
+                <valueConstraint value="13" />
+                <valueConstraint value="14" />
+                <valueConstraint value="15" />
+                <valueConstraint value="17" />
+                <valueConstraint value="16" />
+                <valueConstraint value="19" />
+                <valueConstraint value="9999" />
+                <valueConstraint value="18" />
+                <valueConstraint value="21" />
+                <valueConstraint value="20" />
+                <valueConstraint value="22" />
+
+                <symbol name="imageUpgradeAlreadyInProgress" value="8" />
+                <symbol name="imageUpgradeBadHeader" value="18" />
+                <symbol name="imageUpgradeBadType" value="12" />
+                <symbol name="imageUpgradeCannotStart" value="9" />
+                <symbol name="imageUpgradeChecksumError" value="14" />
+                <symbol name="imageUpgradeFileNotFound" value="17" />
+                <symbol name="imageUpgradeFlashError" value="15" />
+                <symbol name="imageUpgradeIncompatibleHeader" value="19" />
+                <symbol name="imageUpgradeInternalError" value="16" />
+                <symbol name="imageUpgradeInvalidAppDowngrade" value="13" />
+                <symbol name="imageUpgradeMemoryError" value="10" />
+                <symbol name="imageUpgradeNetworkUnreachable" value="22" />
+                <symbol name="imageUpgradeNoStatus" value="9999" />
+                <symbol name="imageUpgradeTftpBadPacket" value="4" />
+                <symbol name="imageUpgradeTftpConnectFailure" value="2" />
+                <symbol name="imageUpgradeTftpNoSocket" value="1" />
+                <symbol name="imageUpgradeTftpOOS" value="5" />
+                <symbol name="imageUpgradeTftpProtocolError" value="11" />
+                <symbol name="imageUpgradeTftpRequestDenied" value="3" />
+                <symbol name="imageUpgradeTftpSvrNoResponse" value="21" />
+                <symbol name="imageUpgradeTftpTimeout" value="7" />
+                <symbol name="imageUpgradeTftpTooBig" value="6" />
+                <symbol name="imageUpgradeTftpXferFail" value="20" />
+
+
+              </node>
+
+            </node>
+
+          </node>
+          <node id="2" name="dsrSpcSocketTable" type="sequenceOfType" accessibility="na" status="mandatory">
+
+            <node id="1" name="dsrSpcSocketTableEntry" type="sequenceOfType" accessibility="na" status="mandatory" typeSymbol="DsrSpcSocketTableEntry">
+
+              <index oid="1.3.6.1.4.1.10418.7.2.8.2.1.1" />
+              <index oid="1.3.6.1.4.1.10418.7.2.8.2.1.2" />
+
+              <node id="1" name="dsrSpcSocketDeviceTableIndex" type="int" accessibility="ro" status="mandatory">
+
+
+              </node>
+              <node id="2" name="dsrSpcSocketTableIndex" type="int" accessibility="ro" status="mandatory">
+
+
+              </node>
+              <node id="3" name="dsrSpcSocketTableSocketName" type="utf8" accessibility="rw" status="mandatory" typeSymbol="UTF8String">
+
+                <sizeConstraint min="0" max="64" />
+
+
+              </node>
+              <node id="4" name="dsrSpcSocketTableStatus" type="int" accessibility="ro" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+
+                <symbol name="off" value="2" />
+                <symbol name="on" value="1" />
+
+
+              </node>
+              <node id="5" name="dsrSpcSocketTableControlStatus" type="int" accessibility="ro" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+                <valueConstraint value="4" />
+                <valueConstraint value="5" />
+                <valueConstraint value="6" />
+                <valueConstraint value="7" />
+                <valueConstraint value="8" />
+                <valueConstraint value="9" />
+                <valueConstraint value="10" />
+                <valueConstraint value="11" />
+                <valueConstraint value="12" />
+                <valueConstraint value="13" />
+                <valueConstraint value="14" />
+                <valueConstraint value="15" />
+                <valueConstraint value="17" />
+                <valueConstraint value="16" />
+
+                <symbol name="fixedOn" value="15" />
+                <symbol name="idleOff" value="7" />
+                <symbol name="idleOn" value="8" />
+                <symbol name="locked" value="16" />
+                <symbol name="lockedOff" value="11" />
+                <symbol name="lockedOn" value="12" />
+                <symbol name="notSet" value="14" />
+                <symbol name="off" value="2" />
+                <symbol name="on" value="1" />
+                <symbol name="pendOff" value="4" />
+                <symbol name="pendOn" value="3" />
+                <symbol name="pendReboot" value="6" />
+                <symbol name="reboot" value="5" />
+                <symbol name="shutdown" value="13" />
+                <symbol name="unlocked" value="17" />
+                <symbol name="wakeOff" value="9" />
+                <symbol name="wakeOn" value="10" />
+
+
+              </node>
+              <node id="6" name="dsrSpcSocketTableModuleStatus" type="int" accessibility="ro" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+                <valueConstraint value="4" />
+                <valueConstraint value="5" />
+                <valueConstraint value="6" />
+
+                <symbol name="normal" value="1" />
+                <symbol name="norspns" value="4" />
+                <symbol name="offFail" value="3" />
+                <symbol name="offFuse" value="5" />
+                <symbol name="onFuse" value="6" />
+                <symbol name="onSFail" value="2" />
+
+
+              </node>
+              <node id="7" name="dsrSpcSocketTableMinOnTime" type="int" accessibility="rw" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+                <valueConstraint value="4" />
+                <valueConstraint value="5" />
+                <valueConstraint value="6" />
+                <valueConstraint value="7" />
+                <valueConstraint value="8" />
+                <valueConstraint value="9" />
+                <valueConstraint value="10" />
+                <valueConstraint value="11" />
+                <valueConstraint value="12" />
+                <valueConstraint value="13" />
+                <valueConstraint value="14" />
+                <valueConstraint value="15" />
+                <valueConstraint value="16" />
+
+                <symbol name="minOnOffTime0" value="1" />
+                <symbol name="minOnOffTime1" value="2" />
+                <symbol name="minOnOffTime10" value="11" />
+                <symbol name="minOnOffTime11" value="12" />
+                <symbol name="minOnOffTime12" value="13" />
+                <symbol name="minOnOffTime13" value="14" />
+                <symbol name="minOnOffTime14" value="15" />
+                <symbol name="minOnOffTime15" value="16" />
+                <symbol name="minOnOffTime2" value="3" />
+                <symbol name="minOnOffTime3" value="4" />
+                <symbol name="minOnOffTime4" value="5" />
+                <symbol name="minOnOffTime5" value="6" />
+                <symbol name="minOnOffTime6" value="7" />
+                <symbol name="minOnOffTime7" value="8" />
+                <symbol name="minOnOffTime8" value="9" />
+                <symbol name="minOnOffTime9" value="10" />
+
+
+              </node>
+              <node id="8" name="dsrSpcSocketTableMinOffTime" type="int" accessibility="rw" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+                <valueConstraint value="4" />
+                <valueConstraint value="5" />
+                <valueConstraint value="6" />
+                <valueConstraint value="7" />
+                <valueConstraint value="8" />
+                <valueConstraint value="9" />
+                <valueConstraint value="10" />
+                <valueConstraint value="11" />
+                <valueConstraint value="12" />
+                <valueConstraint value="13" />
+                <valueConstraint value="14" />
+                <valueConstraint value="15" />
+                <valueConstraint value="16" />
+
+                <symbol name="minOnOffTime0" value="1" />
+                <symbol name="minOnOffTime1" value="2" />
+                <symbol name="minOnOffTime10" value="11" />
+                <symbol name="minOnOffTime11" value="12" />
+                <symbol name="minOnOffTime12" value="13" />
+                <symbol name="minOnOffTime13" value="14" />
+                <symbol name="minOnOffTime14" value="15" />
+                <symbol name="minOnOffTime15" value="16" />
+                <symbol name="minOnOffTime2" value="3" />
+                <symbol name="minOnOffTime3" value="4" />
+                <symbol name="minOnOffTime4" value="5" />
+                <symbol name="minOnOffTime5" value="6" />
+                <symbol name="minOnOffTime6" value="7" />
+                <symbol name="minOnOffTime7" value="8" />
+                <symbol name="minOnOffTime8" value="9" />
+                <symbol name="minOnOffTime9" value="10" />
+
+
+              </node>
+              <node id="9" name="dsrSpcSocketTableWakeupState" type="int" accessibility="rw" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+
+                <symbol name="last" value="3" />
+                <symbol name="off" value="2" />
+                <symbol name="on" value="1" />
+
+
+              </node>
+              <node id="10" name="dsrSpcSocketTableGroupName" type="utf8" accessibility="rw" status="mandatory" typeSymbol="UTF8String">
+
+                <sizeConstraint min="0" max="32" />
+
+
+              </node>
+              <node id="11" name="dsrSpcSocketTableControl" type="int" accessibility="rw" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+                <valueConstraint value="4" />
+
+                <symbol name="noAction" value="1" />
+                <symbol name="off" value="3" />
+                <symbol name="on" value="2" />
+                <symbol name="reboot" value="4" />
+
+
+              </node>
+              <node id="12" name="dsrSpcSocketAccessControlList" type="byte[]" accessibility="ro" status="mandatory">
+
+                <sizeConstraint min="0" max="64" />
+
+
+              </node>
+              <node id="13" name="dsrSpcSocketTablePostOnDelayTime" type="int" accessibility="rw" status="mandatory">
+
+                <rangeConstraint min="0" max="900" />
+
+
+              </node>
+              <node id="14" name="dsrSpcSocketTableInlets" type="ascii" accessibility="ro" status="mandatory" typeSymbol="DisplayString">
+
+                <sizeConstraint min="0" max="32" />
+
+
+              </node>
+              <node id="15" name="dsrSpcSocketTableSocketLabel" type="ascii" accessibility="ro" status="mandatory" typeSymbol="DisplayString">
+
+                <sizeConstraint min="0" max="64" />
+
+
+              </node>
+              <node id="16" name="dsrSpcSocketTableLockControl" type="int" accessibility="rw" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+
+                <symbol name="lock" value="2" />
+                <symbol name="noAction" value="1" />
+                <symbol name="unlock" value="3" />
+
+
+              </node>
+
+            </node>
+
+          </node>
+          <node id="3" name="dsrSpcInletTable" type="sequenceOfType" accessibility="na" status="mandatory">
+
+            <node id="1" name="dsrSpcInletTableEntry" type="sequenceOfType" accessibility="na" status="mandatory" typeSymbol="DsrSpcInletTableEntry">
+
+              <index oid="1.3.6.1.4.1.10418.7.2.8.3.1.1" />
+              <index oid="1.3.6.1.4.1.10418.7.2.8.3.1.2" />
+
+              <node id="1" name="dsrSpcInletDeviceTableIndex" type="int" accessibility="ro" status="mandatory">
+
+
+              </node>
+              <node id="2" name="dsrSpcInletTableIndex" type="int" accessibility="ro" status="mandatory">
+
+
+              </node>
+              <node id="3" name="dsrSpcInletTableName" type="utf8" accessibility="rw" status="mandatory" typeSymbol="UTF8String">
+
+                <sizeConstraint min="0" max="64" />
+
+
+              </node>
+              <node id="4" name="dsrSpcInletTableStatus" type="int" accessibility="ro" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+                <valueConstraint value="4" />
+                <valueConstraint value="5" />
+                <valueConstraint value="6" />
+
+                <symbol name="normal" value="1" />
+                <symbol name="norspns" value="4" />
+                <symbol name="offFail" value="3" />
+                <symbol name="offFuse" value="5" />
+                <symbol name="onFuse" value="6" />
+                <symbol name="onSFail" value="2" />
+
+
+              </node>
+              <node id="5" name="dsrSpcInletTableLoad" type="int" accessibility="ro" status="mandatory">
+
+                <rangeConstraint min="0" max="99999" />
+
+
+              </node>
+              <node id="6" name="dsrSpcInletTableLoadMin" type="int" accessibility="rw" status="mandatory">
+
+                <rangeConstraint min="0" max="30" />
+
+
+              </node>
+              <node id="7" name="dsrSpcInletTableLoadMax" type="int" accessibility="rw" status="mandatory">
+
+                <rangeConstraint min="0" max="30" />
+
+
+              </node>
+              <node id="8" name="dsrSpcInletTableAlarmThreshold" type="int" accessibility="rw" status="mandatory">
+
+                <rangeConstraint min="0" max="40" />
+
+
+              </node>
+
+            </node>
+
+          </node>
+          <node id="4" name="dsrDeleteOfflineSpcDevices" type="int" accessibility="ro" status="mandatory">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+
+            <symbol name="delete" value="2" />
+            <symbol name="noAction" value="1" />
+
+
+          </node>
+
+        </node>
+        <node id="9" name="dsrVirtualMedia" type="node" accessibility="na" status="unknown">
+
+          <node id="1" name="dsrVirtualMediaLockedToViewerSession" type="int" accessibility="rw" status="mandatory">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+
+            <symbol name="disabled" value="1" />
+            <symbol name="enabled" value="2" />
+
+
+          </node>
+          <node id="2" name="dsrVirtualMediaAccessMode" type="int" accessibility="rw" status="mandatory">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+
+            <symbol name="readOnly" value="1" />
+            <symbol name="readWrite" value="2" />
+
+
+          </node>
+          <node id="3" name="dsrVirtualMediaEncryptionTable" type="sequenceOfType" accessibility="na" status="mandatory">
+
+            <node id="1" name="dsrVirtualMediaEncryptionTableEntry" type="sequenceOfType" accessibility="na" status="mandatory" typeSymbol="DsrVirtualMediaEncryptionTableEntry">
+
+              <index oid="1.3.6.1.4.1.10418.7.2.9.3.1.1" />
+
+              <node id="1" name="dsrVirtualMediaEncryptionTableIndex" type="int" accessibility="ro" status="mandatory" typeSymbol="EncryptionLevelEnum">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+                <valueConstraint value="4" />
+
+                <symbol name="encrypt128" value="3" />
+                <symbol name="encrypt3des" value="2" />
+                <symbol name="encryptAes" value="4" />
+                <symbol name="encryptdes" value="1" />
+
+
+              </node>
+              <node id="2" name="dsrVirtualMediaEncryptionTableControl" type="int" accessibility="rw" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+
+                <symbol name="disabled" value="1" />
+                <symbol name="enabled" value="2" />
+
+
+              </node>
+
+            </node>
+
+          </node>
+
+        </node>
+        <node id="10" name="dsrSwitch" type="node" accessibility="na" status="unknown">
+
+          <node id="1" name="dsrCsModifiedName" type="utf8" accessibility="wo" status="mandatory" typeSymbol="UTF8String">
+
+            <sizeConstraint min="0" max="64" />
+
+
+          </node>
+          <node id="2" name="dsrCsInputPort" type="int" accessibility="wo" status="mandatory">
+
+
+          </node>
+          <node id="3" name="dsrCsRipId" type="ascii" accessibility="wo" status="mandatory" typeSymbol="DisplayString">
+
+            <sizeConstraint min="0" max="32" />
+
+
+          </node>
+          <node id="4" name="dsrUpdateCsTableControl" type="int" accessibility="wo" status="mandatory">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+
+            <symbol name="modify" value="2" />
+            <symbol name="noAction" value="1" />
+
+
+          </node>
+          <node id="5" name="dsrCsTable" type="sequenceOfType" accessibility="na" status="mandatory">
+
+            <node id="1" name="dsrCsTableEntry" type="sequenceOfType" accessibility="na" status="mandatory" typeSymbol="DsrCsTableEntry">
+
+              <index oid="1.3.6.1.4.1.10418.7.2.10.5.1.1" />
+
+              <node id="1" name="dsrCsTableIndex" type="int" accessibility="ro" status="mandatory">
+
+
+              </node>
+              <node id="2" name="dsrCsTableInputPort" type="int" accessibility="ro" status="mandatory">
+
+
+              </node>
+              <node id="3" name="dsrCsTableRipId" type="ascii" accessibility="ro" status="mandatory" typeSymbol="DisplayString">
+
+                <sizeConstraint min="0" max="32" />
+
+
+              </node>
+              <node id="4" name="dsrCsTableType" type="int" accessibility="ro" status="mandatory" typeSymbol="CascadeSwitchTypeEnum">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+                <valueConstraint value="4" />
+
+                <symbol name="autoview2000" value="3" />
+                <symbol name="dellBlade" value="4" />
+                <symbol name="none" value="1" />
+                <symbol name="unknownType" value="2" />
+
+
+              </node>
+              <node id="5" name="dsrCsTableChannels" type="int" accessibility="ro" status="mandatory">
+
+
+              </node>
+              <node id="6" name="dsrCsTableStatus" type="int" accessibility="ro" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+
+                <symbol name="offline" value="1" />
+                <symbol name="online" value="2" />
+
+
+              </node>
+              <node id="7" name="dsrCsTableSwitchName" type="utf8" accessibility="rw" status="mandatory" typeSymbol="UTF8String">
+
+                <sizeConstraint min="0" max="64" />
+
+
+              </node>
+
+            </node>
+
+          </node>
+
+        </node>
+        <node id="11" name="dsrDns" type="node" accessibility="na" status="unknown">
+
+          <node id="1" name="dsrDnsServerTable" type="sequenceOfType" accessibility="na" status="mandatory">
+
+            <node id="1" name="dsrDnsServerTableEntry" type="sequenceOfType" accessibility="na" status="mandatory" typeSymbol="DsrDnsServerTableEntry">
+
+              <index oid="1.3.6.1.4.1.10418.7.2.11.1.1.1" />
+
+              <node id="1" name="dsrDnsServerTableIndex" type="int" accessibility="ro" status="mandatory">
+
+                <rangeConstraint min="1" max="3" />
+
+
+              </node>
+              <node id="2" name="dsrDnsServerTableInetAddressType" type="int" accessibility="rw" status="mandatory" typeSymbol="InetAddressType">
+
+                <valueConstraint value="0" />
+                <valueConstraint value="16" />
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+                <valueConstraint value="3" />
+                <valueConstraint value="4" />
+
+                <symbol name="dns" value="16" />
+                <symbol name="ipv4" value="1" />
+                <symbol name="ipv4z" value="3" />
+                <symbol name="ipv6" value="2" />
+                <symbol name="ipv6z" value="4" />
+                <symbol name="unknown" value="0" />
+
+
+              </node>
+              <node id="3" name="dsrDnsServerTableAddress" type="ascii" accessibility="rw" status="mandatory" typeSymbol="DisplayString">
+
+                <sizeConstraint min="0" max="256" />
+
+
+              </node>
+
+            </node>
+
+          </node>
+
+        </node>
+        <node id="12" name="dsrAuthentication" type="node" accessibility="na" status="unknown">
+
+          <node id="1" name="dsrAuthenticationTable" type="sequenceOfType" accessibility="na" status="mandatory">
+
+            <node id="1" name="dsrAuthenticationTableEntry" type="sequenceOfType" accessibility="na" status="mandatory" typeSymbol="DsrAuthenticationTableEntry">
+
+              <index oid="1.3.6.1.4.1.10418.7.2.12.1.1.1" />
+
+              <node id="1" name="dsrAuthenticationTableIndex" type="int" accessibility="ro" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+
+                <symbol name="ldap" value="2" />
+                <symbol name="local" value="1" />
+
+
+              </node>
+              <node id="2" name="dsrAuthenticationTableOrder" type="int" accessibility="rw" status="mandatory">
+
+                <rangeConstraint min="0" max="3" />
+
+
+              </node>
+
+            </node>
+
+          </node>
+          <node id="2" name="dsrOverrideUserName" type="utf8" accessibility="rw" status="mandatory" typeSymbol="UTF8String">
+
+            <sizeConstraint min="0" max="16" />
+
+
+          </node>
+          <node id="3" name="dsrOverrideUserPassword" type="utf8" accessibility="rw" status="mandatory" typeSymbol="UTF8String">
+
+            <sizeConstraint min="0" max="16" />
+
+
+          </node>
+
+        </node>
+        <node id="13" name="dsrLdap" type="node" accessibility="na" status="unknown">
+
+          <node id="1" name="dsrLdapServerTable" type="sequenceOfType" accessibility="na" status="mandatory">
+
+            <node id="1" name="dsrLdapServerTableEntry" type="sequenceOfType" accessibility="na" status="mandatory" typeSymbol="DsrLdapServerTableEntry">
+
+              <index oid="1.3.6.1.4.1.10418.7.2.13.1.1.1" />
+
+              <node id="1" name="dsrLdapServerTableIndex" type="int" accessibility="ro" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+
+                <symbol name="primary" value="1" />
+                <symbol name="secondary" value="2" />
+
+
+              </node>
+              <node id="2" name="dsrLdapServerTableName" type="ascii" accessibility="rw" status="mandatory" typeSymbol="DisplayString">
+
+                <sizeConstraint min="0" max="256" />
+
+
+              </node>
+              <node id="3" name="dsrLdapServerTablePort" type="int" accessibility="rw" status="mandatory">
+
+                <rangeConstraint min="1" max="65535" />
+
+
+              </node>
+              <node id="4" name="dsrLdapServerTableAccess" type="int" accessibility="rw" status="mandatory">
+
+                <valueConstraint value="1" />
+                <valueConstraint value="2" />
+
+                <symbol name="ldap" value="1" />
+                <symbol name="ldaps" value="2" />
+
+
+              </node>
+
+            </node>
+
+          </node>
+          <node id="2" name="dsrLdapSearchDN" type="utf8" accessibility="rw" status="mandatory" typeSymbol="UTF8String">
+
+
+          </node>
+          <node id="3" name="dsrLdapSearchPasswd" type="utf8" accessibility="rw" status="mandatory" typeSymbol="UTF8String">
+
+
+          </node>
+          <node id="4" name="dsrLdapSearchBase" type="utf8" accessibility="rw" status="mandatory" typeSymbol="UTF8String">
+
+
+          </node>
+          <node id="5" name="dsrLdapSearchUid" type="utf8" accessibility="rw" status="mandatory" typeSymbol="UTF8String">
+
+
+          </node>
+          <node id="6" name="dsrLdapQueryModeAppliance" type="int" accessibility="rw" status="mandatory">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+            <valueConstraint value="3" />
+
+            <symbol name="attribute" value="2" />
+            <symbol name="basic" value="1" />
+            <symbol name="group" value="3" />
+
+
+          </node>
+          <node id="7" name="dsrLdapQueryModeServer" type="int" accessibility="rw" status="mandatory">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+            <valueConstraint value="3" />
+
+            <symbol name="attribute" value="2" />
+            <symbol name="basic" value="1" />
+            <symbol name="group" value="3" />
+
+
+          </node>
+          <node id="8" name="dsrLdapGroupContainer" type="utf8" accessibility="rw" status="mandatory" typeSymbol="UTF8String">
+
+
+          </node>
+          <node id="9" name="dsrLdapGroupContainerMask" type="utf8" accessibility="rw" status="mandatory" typeSymbol="UTF8String">
+
+
+          </node>
+          <node id="10" name="dsrLdapTargetMask" type="utf8" accessibility="rw" status="mandatory" typeSymbol="UTF8String">
+
+
+          </node>
+          <node id="11" name="dsrLdapAccessControl" type="utf8" accessibility="rw" status="mandatory" typeSymbol="UTF8String">
+
+
+          </node>
+          <node id="12" name="dsrLdapAuthenticateOnly" type="int" accessibility="rw" status="mandatory">
+
+            <valueConstraint value="1" />
+            <valueConstraint value="2" />
+
+            <symbol name="no" value="1" />
+            <symbol name="yes" value="2" />
+
+
+          </node>
+
+        </node>
+
+      </node>
+
+    </node>
+
+  </node>
+</mib>
