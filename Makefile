@@ -1,5 +1,5 @@
-OBJ = network.o session.o asmp.o
-OBJH = asmpASMPDomain.o asmpAIDPDomain.o session.o snmphook.o
+OBJ = network.o session.o asmp.o asmpASMPDomain.o asmpAIDPDomain.o
+OBJH = $(OBJ) snmphook.o
 
 CFLAGS = -Wall -g
 LIBS   = -lssl -lsnmp

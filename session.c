@@ -10,9 +10,9 @@
 
 int snmp_build();
 
-oid *netsnmp_asmpAIDPDomain;
-oid *netsnmp_asmpASMPDomain;
-oid *netsnmp_asmpASMPSDomain;
+extern oid *netsnmp_asmpAIDPDomain;
+extern oid *netsnmp_asmpASMPDomain;
+extern oid *netsnmp_asmpASMPSDomain;
 
 static int _hook_parse();
 static int _hook_build();
@@ -33,7 +33,9 @@ asmp_open(netsnmp_session *in_session)
                        NETSNMP_DS_LIB_DEFAULT_PORT,
                        ASMP_PORT);
 
-    if (in_session->version == SNMP_VERSION_2c &&
+    if ((in_session->version == SNMP_VERSION_2c ||
+         in_session->version == SNMP_VERSION_1)
+        &&
         (!strncmp(in_session->peername, "asmp:", 5) ||
          !strncmp(in_session->peername, "asmps:", 6) ||
          !strncmp(in_session->peername, "aidp:", 5)))
@@ -62,7 +64,10 @@ asmp_open(netsnmp_session *in_session)
                             NULL, NULL,
                             NULL);
         if (session != NULL) {
-            // TODO: ASMP_LOGIN
+            if (asmp_sess_setup(session) != 0)
+                goto free;
+            if (asmp_sess_login(session, "", "") != 0)
+                goto free;
             fprintf(stderr, "ASMP initialized\n");
         }
     } else {
@@ -71,6 +76,28 @@ asmp_open(netsnmp_session *in_session)
     }
 
     return session;
+
+free:
+    free(session);
+    return NULL;
+}
+
+int
+asmp_sess_login(netsnmp_session *session,
+                const char *user, const char *passwd)
+{
+    oid val = 0;
+    int status;
+    netsnmp_pdu *pdu;
+    netsnmp_pdu *response;
+
+    pdu = snmp_pdu_create(ASMP_LOGIN_REQUEST);
+    snmp_add_var(pdu, &val, 1, 's', user);
+    snmp_add_var(pdu, &val, 1, 's', passwd);
+
+    status = snmp_synch_response(session, pdu, &response);
+
+    return status;
 }
 
 int
@@ -160,24 +187,77 @@ static int
 _hook_build(netsnmp_session * sp,
             netsnmp_pdu *pdu, u_char * pkt, size_t * len)
 {
-    int rc;
-    size_t offset = 0;
-    struct asmp_connection *con;
+    int i;
+    int rc = 0;
+    size_t offset     = 0;
+    size_t sz_payload = 0;
+    netsnmp_variable_list *vp;
     netsnmp_transport *transport;
+    struct asmp_connection *asmp;
+
+    fprintf(stderr, "_hook_build called: %x\n", pdu->command);
 
     transport = snmp_sess_transport(snmp_sess_pointer(sp));
-    if (transport == NULL)
+    if (transport == NULL || transport->data == NULL)
         return -1;
 
-    con = transport->data;
-    if (con == NULL)
-        return -1;
+    asmp = transport->data;
 
-    fprintf(stderr, "_hook_build called\n");
-    rc = snmp_build(&pkt, len, &offset, sp, pdu);
-    if (rc >= 0) {
-        memcpy(pkt, pkt+(*len)-offset, *len);
-        *len = offset;
+    pkt[offset++] = ASMP_SOH;
+    switch (asmp->proto) {
+        case ASMP_PROTO_AIDP:
+            memcpy(pkt+offset, "AIDP", 4);
+            break;
+
+        case ASMP_PROTO_ASMP:
+        case ASMP_PROTO_ASMPS:
+            memcpy(pkt+offset, "ASMP", 4);
+            break;
+
+        default:
+            return -1;
     }
+    offset += 4;
+    pkt[offset++] = (pdu->msgid >> 8) & 0xff;
+    pkt[offset++] =  pdu->msgid & 0xff;
+    pkt[offset++] =  pdu->command;
+    /* Reserve space for payload length */
+    memset(pkt+offset, 0, 2);
+    offset += 2;
+
+// snmp_pdu_add_variable(pdu, name, name_len, type, value, len)
+
+    if (SNMP_CMD_CONFIRMED(pdu->command)) {
+        for (sz_payload = offset, i=0, vp = pdu->variables; vp; i++, vp = vp->next_variable) {
+        }
+    } else {
+        for (sz_payload = offset, i=1, vp = pdu->variables; vp; i++, vp = vp->next_variable) {
+            pkt[sz_payload++] = i & 0xff;
+            switch (vp->type) {
+                case ASN_INTEGER:
+                    pkt[sz_payload++] = 0;
+                    pkt[sz_payload++] = 2;
+                    pkt[sz_payload++] = (*(vp->val.integer) >> 8) & 0xff;
+                    pkt[sz_payload++] =  *(vp->val.integer) & 0xff;
+                    break;
+
+                case ASN_OCTET_STR:
+                    pkt[sz_payload++] = (vp->val_len >> 8) & 0xff;
+                    pkt[sz_payload++] =  vp->val_len & 0xff;
+                    if (vp->val_len > 0)
+                        memcpy(pkt+sz_payload, vp->val.string, vp->val_len);
+                    sz_payload += vp->val_len;
+                    break;
+            }
+        }
+        pkt[sz_payload++] = ASMP_FIELD_TERM;
+        sz_payload -= offset;
+        offset -= 2;
+        pkt[offset++] = (sz_payload >> 8) & 0xff;
+        pkt[offset++] =  sz_payload & 0xff;
+    }
+
+    *len = offset+sz_payload;
+
     return rc;
 }

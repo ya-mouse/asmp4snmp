@@ -32,7 +32,6 @@ static int _tcp_send();
 static int _tcp_recv();
 static int _ssl_send();
 static int _ssl_recv();
-static int _dsr_asmp_version();
 static int _setup_ssl();
 
 // t->sock, buf, size, 0
@@ -342,15 +341,6 @@ _create_tstring(oid *domain, int domain_len, int proto,
     asmp->proto    = proto;
     asmp->tcp_meth = &tcp_connection;
 
-    // TODO: ASMP_SETUP_REQUEST
-
-    if (asmp->proto == ASMP_PROTO_ASMPS) {
-        if (_setup_ssl(asmp) < 0)
-            goto free;
-    }
-
-    _dsr_asmp_version(asmp);
-
     goto exit;
 
 free:
@@ -364,30 +354,57 @@ exit:
     return t;
 }
 
-static int
-_dsr_asmp_version(struct asmp_connection *con)
+int
+asmp_sess_setup(netsnmp_session *session)
 {
     int rc = 0;
 
-#if 0
-    struct asmp_pdu *pdu;
-    struct asmp_pdu *response = NULL;
-    uint8_t req[] = {ASMP_SOH, 0, 3, '3', '.', '0', ASMP_FIELD_TERM};
+    netsnmp_transport *transport;
+    struct asmp_connection *asmp;
 
-    pdu = asmp_pdu_new(ASMP_VERSION_REQUEST, req, sizeof(req));
-    if (asmp_request(cfg, pdu, &response) != 0 || response == NULL) {
-        rc = -1;
-        goto free;
+    int val;
+    oid name = 0;
+    netsnmp_pdu *pdu;
+    netsnmp_pdu *response;
+
+    transport = snmp_sess_transport(snmp_sess_pointer(session));
+    if (transport == NULL || transport->data == NULL)
+        return -1;
+
+    asmp = transport->data;
+    if (asmp->proto != ASMP_PROTO_AIDP) {
+        pdu = snmp_pdu_create(ASMP_SESSION_SETUP_REQUEST);
+        val = asmp->proto == ASMP_PROTO_ASMPS ?
+                  ASMP_SESSION_SETUP_SSL_CONNECTION :
+                  ASMP_SESSION_SETUP_TCP_CONNECTION;
+        snmp_pdu_add_variable(pdu, &name, 1, ASN_INTEGER,
+                              (u_char *)&val, sizeof(val));
+
+        rc = snmp_synch_response(session, pdu, &response);
+        if (rc != STAT_SUCCESS)
+            goto free;
+
+        snmp_free_pdu(response);
+
+        if (asmp->proto == ASMP_PROTO_ASMPS) {
+            if (_setup_ssl(asmp) < 0)
+                goto free;
+        }
+
+        snmp_free_pdu(pdu);
     }
 
-    /* TODO: collect DSR version from response */
+    pdu = snmp_pdu_create(ASMP_VERSION_REQUEST);
+    snmp_add_var(pdu, &name, 1, 's', "3.0");
 
-    asmp_pdu_free(response);
-    rc = 0;
+    rc = snmp_synch_response(session, pdu, &response);
+    if (rc != STAT_SUCCESS)
+        goto free;
+
+    snmp_free_pdu(response);
 
 free:
-    asmp_pdu_free(pdu);
-#endif
+    snmp_free_pdu(pdu);
 
     return rc;
 }
