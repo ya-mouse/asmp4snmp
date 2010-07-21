@@ -122,7 +122,7 @@ static int
 _hook_build(netsnmp_session * sp,
             netsnmp_pdu *pdu, u_char * pkt, size_t * len)
 {
-    int i;
+    int i, k;
     int rc = 0;
     size_t offset     = 0;
     size_t sz_payload = 0;
@@ -157,13 +157,41 @@ _hook_build(netsnmp_session * sp,
     pkt[offset++] =  pdu->msgid & 0xff;
     pkt[offset++] =  pdu->command;
     /* Reserve space for payload length */
-    memset(pkt+offset, 0, 2);
     offset += 2;
 
 // snmp_pdu_add_variable(pdu, name, name_len, type, value, len)
 
     if (SNMP_CMD_CONFIRMED(pdu->command)) {
         for (sz_payload = offset, i=0, vp = pdu->variables; vp; i++, vp = vp->next_variable) {
+            pkt[sz_payload++] = i & 0xff;
+            /* Save variable's len field offset */
+            pkt[sz_payload++] = (vp->name_length >> 8) & 0xff;
+            pkt[sz_payload++] =  vp->name_length & 0xff;
+            /* Encode variable name */
+            fprintf(stderr, "Requesting OID: ");
+            for (k = 0; i<vp->name_length; k++) {
+                pkt[sz_payload++] = (vp->name[k] >> 24) & 0xff;
+                pkt[sz_payload++] = (vp->name[k] >> 16) & 0xff;
+                pkt[sz_payload++] = (vp->name[k] >>  8) & 0xff;
+                pkt[sz_payload++] =  vp->name[k] & 0xff;
+                fprintf(stderr, ".%d", (int)vp->name[k]);
+            }
+            fprintf(stderr, "\n");
+            /* Set variable type */
+            pkt[sz_payload++] = vp->type & 0xff;
+            /* Encode variable */
+            switch (vp->type) {
+                case ASN_INTEGER:
+                    break;
+
+                case ASN_OCTET_STR:
+                    break;
+
+                case ASN_NULL:
+                    memset(pkt+sz_payload, 0, 2);
+                    sz_payload += 2;
+                    break;
+            }
         }
     } else {
         for (sz_payload = offset, i=1, vp = pdu->variables; vp; i++, vp = vp->next_variable) {
@@ -187,11 +215,13 @@ _hook_build(netsnmp_session * sp,
         }
     }
     pkt[sz_payload++] = ASMP_FIELD_TERM;
-    sz_payload -= offset;
+    /* Payload minus FIELD_TERM */
+    sz_payload -= offset+1;
+    /* Move pointer to payload length field */
     offset -= 2;
     pkt[offset++] = (sz_payload >> 8) & 0xff;
     pkt[offset++] =  sz_payload & 0xff;
-    pkt[offset+sz_payload] = ASMP_TERMINATOR;
+    pkt[sz_payload+(offset++)+1] = ASMP_TERMINATOR;
 
     *len = offset+sz_payload+1;
 
