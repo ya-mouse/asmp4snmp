@@ -1,7 +1,7 @@
 OBJ = session.o asmpASMPDomain.o asmpAIDPDomain.o
 OBJH = $(OBJ) snmphook.o
 
-CFLAGS = -Wall -g
+CFLAGS = -Wall -g -fPIC -DPIC
 LIBS   = -lssl -lsnmp
 
 %.o: %.c
@@ -13,7 +13,7 @@ asmp: asmp.o network.o $(OBJ)
 	$(CC) -o $@ $^ $(LIBS) -g
 
 libsnmphook.so: $(OBJH)
-	$(CC) -o $@ $^ -shared -Wl,-soname,libsnmphook.so -ldl $(LIBS)
+	$(CC) -o $@ $^ -shared -Wl,-soname,libsnmphook.so -fPIC -ldl $(LIBS)
 
 test: libsnmphook.so
 	LD_PRELOAD=$(PWD)/libsnmphook.so snmpget -v3 aidp:localhost  1.3.6.1 -On -d -Dtdomain -Dnetsnmp_sockaddr_in
