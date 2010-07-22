@@ -181,6 +181,7 @@ netsnmp_udp6_transport(struct sockaddr_in6 *addr, int local)
     struct asmp_connection *asmp;
     netsnmp_transport *t = NULL;
     int             rc = 0;
+    int             val;
     char           *str = NULL;
 
     if (addr == NULL || addr->sin6_family != AF_INET6) {
@@ -211,6 +212,10 @@ netsnmp_udp6_transport(struct sockaddr_in6 *addr, int local)
     }
 
     _netsnmp_udp_sockopt_set(t->sock, local);
+    val = 0;
+    setsockopt(t->sock, IPPROTO_IP, IP_MULTICAST_LOOP, (char *)&val, sizeof(val));
+    val = 64;
+    setsockopt(t->sock, IPPROTO_IP, IP_MULTICAST_TTL, (char *)&val, sizeof(val));
 
     asmp = calloc(1, sizeof(struct asmp_connection));
     t->data = asmp;
@@ -1309,7 +1314,7 @@ netsnmp_udp6_create_ostring(const u_char * o, size_t o_len, int local)
 
 
 void
-netsnmp_udp6_ctor(void)
+netsnmp_aidp_ctor(void)
 {
     asmpDomain.name = netsnmp_asmpAIDPDomain;
     asmpDomain.name_length = sizeof(netsnmp_asmpAIDPDomain) / sizeof(oid);

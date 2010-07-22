@@ -21,6 +21,8 @@
 #define ASMP_FIELD_TERM                   0xff
 #define ASMP_TERMINATOR                   0x0d
 
+#define AIDP_DISCOVER_REQUEST             0x01
+
 #define TRANSPORT_DOMAIN_AIDP             1,3,6,1,2,1,100,1,10418,1
 #define TRANSPORT_DOMAIN_ASMP             1,3,6,1,2,1,100,1,10418,2
 #define TRANSPORT_DOMAIN_ASMPS            1,3,6,1,2,1,100,1,10418,3
@@ -66,6 +68,7 @@ struct asmp_connection {
     struct asmpnet_meth *tcp_meth;
     void    *addr_pair;
     int      proto;
+    uint32_t seq;
 };
 
 struct asmp_pdu {

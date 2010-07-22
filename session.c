@@ -114,8 +114,20 @@ static int
 _hook_parse(netsnmp_session * sp, netsnmp_pdu * pdu,
             u_char * pkt, size_t len)
 {
+    netsnmp_transport *transport;
+    struct asmp_connection *asmp;
+
+    transport = snmp_sess_transport(snmp_sess_pointer(sp));
+    if (transport == NULL || transport->data == NULL)
+        return -1;
+
+    asmp = transport->data;
+
     fprintf(stderr, "_hook_parse called\n");
-    return -1;
+    pdu->msgid = (pkt[5] << 8) | pkt[6];
+    pdu->reqid = (pkt[5] << 8) | pkt[6];
+
+    return SNMP_ERR_NOERROR;
 }
 
 static int
@@ -153,9 +165,43 @@ _hook_build(netsnmp_session * sp,
             return -1;
     }
     offset += 4;
-    pkt[offset++] = (pdu->msgid >> 8) & 0xff;
-    pkt[offset++] =  pdu->msgid & 0xff;
+
+    /* Fix Request ID by locally stored value */
+    pdu->reqid = ++asmp->seq;
+    pdu->msgid = ++asmp->seq;
+    if (pdu->version == SNMP_VERSION_3) {
+        pkt[offset++] = (pdu->msgid >> 8) & 0xff;
+        pkt[offset++] =  pdu->msgid & 0xff;
+    } else {
+        pkt[offset++] = (pdu->reqid >> 8) & 0xff;
+        pkt[offset++] =  pdu->reqid & 0xff;
+    }
+#if 0
+    asmp->seq++;
+    pkt[offset++] = (asmp->seq >> 8) & 0xff;
+    pkt[offset++] =  asmp->seq & 0xff;
+#endif
     pkt[offset++] =  pdu->command;
+    if (asmp->proto == ASMP_PROTO_AIDP &&
+        pdu->command == AIDP_DISCOVER_REQUEST) {
+        int v = htonl(1);
+//        memcpy(pkt+offset, &v, 4);
+//        offset += 4;
+        v = htonl(NULL != NULL ? 29 : 6);
+        memcpy(pkt+offset, &v, 4);
+        offset += 4;
+
+        pkt[offset++] = 1;
+        pkt[offset++] = 0; // short
+        pkt[offset++] = 2; // short
+        pkt[offset++] = 1;
+        pkt[offset++] = 8;
+
+        pkt[offset++] = ASMP_FIELD_TERM;
+        pkt[offset++] = ASMP_TERMINATOR;
+        *len = offset;
+        return rc;
+    }
     /* Reserve space for payload length */
     offset += 2;
 
@@ -214,6 +260,7 @@ _hook_build(netsnmp_session * sp,
             }
         }
     }
+
     pkt[sz_payload++] = ASMP_FIELD_TERM;
     /* Payload minus FIELD_TERM */
     sz_payload -= offset+1;

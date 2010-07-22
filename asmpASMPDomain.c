@@ -392,20 +392,30 @@ asmp_sess_setup(netsnmp_session *session)
         }
 
         snmp_free_pdu(pdu);
+
+        pdu = snmp_pdu_create(ASMP_VERSION_REQUEST);
+        snmp_add_var(pdu, &name, 1, 's', "3.0");
+
+        rc = snmp_synch_response(session, pdu, &response);
+        if (rc != STAT_SUCCESS)
+            goto free;
+
+        snmp_free_pdu(response);
+
+        snmp_free_pdu(pdu);
+    } else {
+        pdu = snmp_pdu_create(AIDP_DISCOVER_REQUEST);
+
+        rc = snmp_synch_response(session, pdu, &response);
+        if (rc != STAT_SUCCESS)
+            goto free;
+
+        snmp_free_pdu(response);
+
+        snmp_free_pdu(pdu);
     }
 
-    pdu = snmp_pdu_create(ASMP_VERSION_REQUEST);
-    snmp_add_var(pdu, &name, 1, 's', "3.0");
-
-    rc = snmp_synch_response(session, pdu, &response);
-    if (rc != STAT_SUCCESS)
-        goto free;
-
-    snmp_free_pdu(response);
-
 free:
-    snmp_free_pdu(pdu);
-
     return rc;
 }
 
