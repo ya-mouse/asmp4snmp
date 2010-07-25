@@ -7,9 +7,12 @@ LIBS   = -lssl -lsnmp
 %.o: %.c
 	$(CC) -c $(CFLAGS) $<
 
-all: asmp libsnmphook.so
+all: asmp aidp libsnmphook.so
 
 asmp: asmp.o network.o $(OBJ)
+	$(CC) -o $@ $^ $(LIBS) -g
+
+aidp: aidp.o $(OBJ)
 	$(CC) -o $@ $^ $(LIBS) -g
 
 libsnmphook.so: $(OBJH)
@@ -21,4 +24,4 @@ test: libsnmphook.so
 #	LD_PRELOAD=$(PWD)/libsnmphook.so snmpget -v3 asmps:localhost 1.3.6.1 -On -d -Dtdomain -Dnetsnmp_sockaddr_in
 
 clean:
-	@rm -f asmp libasmphook.so asmp.o network.o $(OBJ) $(OBJH)
+	@rm -f asmp aidp libasmphook.so asmp.o aidp.o network.o $(OBJ) $(OBJH)
