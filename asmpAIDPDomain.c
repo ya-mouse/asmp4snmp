@@ -1325,4 +1325,3 @@ netsnmp_aidp_ctor(void)
 
     netsnmp_tdomain_register(&asmpDomain);
 }
-

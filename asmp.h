@@ -22,6 +22,7 @@
 #define ASMP_TERMINATOR                   0x0d
 
 #define AIDP_DISCOVER_REQUEST             0x01
+#define AIDP_DISCOVER_REPLY               0x81
 
 #define TRANSPORT_DOMAIN_AIDP             1,3,6,1,2,1,100,1,10418,1
 #define TRANSPORT_DOMAIN_ASMP             1,3,6,1,2,1,100,1,10418,2
@@ -61,6 +62,13 @@ struct asmp_cfg {
     int      is_cert;   /* is secured session use certificate */
 };
 
+struct asmp_pdu {
+    uint16_t seq;
+    uint8_t  cmd;
+    uint32_t len;
+    uint8_t *data;
+};
+
 struct asmp_connection {
     int      sock;
     SSL     *ssl_sock;
@@ -69,13 +77,6 @@ struct asmp_connection {
     void    *addr_pair;
     int      proto;
     uint32_t seq;
-};
-
-struct asmp_pdu {
-    uint16_t seq;
-    uint8_t  cmd;
-    uint32_t len;
-    uint8_t *data;
 };
 
 void netsnmp_aidp_ctor();

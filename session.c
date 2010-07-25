@@ -16,6 +16,7 @@ extern oid *netsnmp_asmpASMPSDomain;
 
 static int _hook_parse();
 static int _hook_build();
+static int _asmp_synch_input();
 
 // session->securityName contains username from '-u' arg
 
@@ -62,7 +63,8 @@ asmp_open(netsnmp_session *in_session)
                             NULL, _hook_build,
                             NULL, NULL,
                             NULL);
-        if (session != NULL) {
+        if (session != NULL &&
+            (session->flags & SNMP_FLAGS_STREAM_SOCKET)) {
             if (asmp_sess_setup(session) != 0)
                 goto free;
             if (asmp_sess_login(session, "", "") != 0)
@@ -94,7 +96,7 @@ asmp_sess_login(netsnmp_session *session,
     snmp_add_var(pdu, &val, 1, 's', user);
     snmp_add_var(pdu, &val, 1, 's', passwd);
 
-    status = snmp_synch_response(session, pdu, &response);
+    status = asmp_synch_response(session, pdu, &response);
 
     return status;
 }
@@ -107,13 +109,23 @@ asmp_sess_logout(netsnmp_session *session)
 
     pdu = snmp_pdu_create(ASMP_LOGOUT_REQUEST);
 
-    return snmp_synch_response(session, pdu, &response);
+    return asmp_synch_response(session, pdu, &response);
+}
+
+int
+asmp_synch_response(netsnmp_session * ss,
+                    netsnmp_pdu *pdu, netsnmp_pdu **response)
+{
+    return snmp_synch_response_cb(ss, pdu, response, _asmp_synch_input);
 }
 
 static int
 _hook_parse(netsnmp_session * sp, netsnmp_pdu * pdu,
             u_char * pkt, size_t len)
 {
+    u_char  *p;
+    oid      val;
+    uint32_t payload_len;
     netsnmp_transport *transport;
     struct asmp_connection *asmp;
 
@@ -124,8 +136,46 @@ _hook_parse(netsnmp_session * sp, netsnmp_pdu * pdu,
     asmp = transport->data;
 
     fprintf(stderr, "_hook_parse called\n");
-    pdu->msgid = (pkt[5] << 8) | pkt[6];
-    pdu->reqid = (pkt[5] << 8) | pkt[6];
+
+    if (pkt[0] != 1) {
+        fprintf(stderr, "asmp_parse: wrong packet (No SOH)\n");
+        return -1;
+    }
+
+    if (strncmp((char *)pkt+1, "AIDP", 4)) {
+        fprintf(stderr, "asmp_parse: wrong packet (Bad Signature)\n");
+        return -1;
+    }
+
+    if (len < 8) {
+        fprintf(stderr, "asmp_parse: wrong packet (Too short)\n");
+        return -1;
+    }
+
+    pdu->msgid   = pdu->reqid = (pkt[5] << 8) | pkt[6];
+    pdu->command = pkt[7];
+
+    p = pkt+12;
+    payload_len = ntohl(*((uint32_t *)(pkt+8)));
+    if (payload_len != len-13) {
+        fprintf(stderr,
+                "asmp_parse: wrong packet (Payload length bigger than packet length: %d <> %d)\n",
+                payload_len, len-13);
+        return -1;
+    }
+    while (payload_len) {
+        uint16_t vlen;
+        if (*p == ASMP_FIELD_TERM)
+            break;
+        val  = *p;
+        vlen = ntohs(*((uint16_t *)(p+1)));
+        fprintf(stderr, "Flen: %04x\n", vlen);
+        snmp_pdu_add_variable(pdu, &val, 1,
+                              ASN_OCTET_STR,
+                              p+3, vlen);
+        p += vlen+3;
+        payload_len -= vlen+3;
+    }
 
     return SNMP_ERR_NOERROR;
 }
@@ -214,8 +264,8 @@ _hook_build(netsnmp_session * sp,
             pkt[sz_payload++] = (vp->name_length >> 8) & 0xff;
             pkt[sz_payload++] =  vp->name_length & 0xff;
             /* Encode variable name */
-            fprintf(stderr, "Requesting OID: ");
-            for (k = 0; i<vp->name_length; k++) {
+            fprintf(stderr, "Requesting OID (%d): ", vp->name_length);
+            for (k = 0; k<vp->name_length; k++) {
                 pkt[sz_payload++] = (vp->name[k] >> 24) & 0xff;
                 pkt[sz_payload++] = (vp->name[k] >> 16) & 0xff;
                 pkt[sz_payload++] = (vp->name[k] >>  8) & 0xff;
@@ -273,4 +323,40 @@ _hook_build(netsnmp_session * sp,
     *len = offset+sz_payload+1;
 
     return rc;
+}
+
+static int
+_asmp_synch_input(int op,
+                 netsnmp_session * session,
+                 int reqid, netsnmp_pdu *pdu, void *magic)
+{
+    struct synch_state *state = (struct synch_state *) magic;
+
+    fprintf(stderr, "reqid %d <> %d\n", reqid, state->reqid);
+
+    if (reqid != state->reqid)
+        return 0;
+
+    state->waiting = 0;
+
+    if (op == NETSNMP_CALLBACK_OP_RECEIVED_MESSAGE && pdu) {
+        /*
+         * clone the pdu to return to snmp_synch_response.
+         */
+        state->pdu = snmp_clone_pdu(pdu);
+        state->status = STAT_SUCCESS;
+        session->s_snmp_errno = SNMPERR_SUCCESS;
+    } else if (op == NETSNMP_CALLBACK_OP_TIMED_OUT) {
+        state->pdu = NULL;
+        state->status = STAT_TIMEOUT;
+        session->s_snmp_errno = SNMPERR_TIMEOUT;
+        SET_SNMP_ERROR(SNMPERR_TIMEOUT);
+    } else if (op == NETSNMP_CALLBACK_OP_DISCONNECT) {
+        state->pdu = NULL;
+        state->status = STAT_ERROR;
+        session->s_snmp_errno = SNMPERR_ABORT;
+        SET_SNMP_ERROR(SNMPERR_ABORT);
+    }
+
+    return 1;
 }

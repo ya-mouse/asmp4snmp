@@ -7,6 +7,7 @@
 #include <arpa/inet.h>
 
 #include "asmp.h"
+#include "session.h"
 
 #include <openssl/rand.h>
 
@@ -380,7 +381,7 @@ asmp_sess_setup(netsnmp_session *session)
         snmp_pdu_add_variable(pdu, &name, 1, ASN_INTEGER,
                               (u_char *)&val, sizeof(val));
 
-        rc = snmp_synch_response(session, pdu, &response);
+        rc = asmp_synch_response(session, pdu, &response);
         if (rc != STAT_SUCCESS)
             goto free;
 
@@ -396,7 +397,7 @@ asmp_sess_setup(netsnmp_session *session)
         pdu = snmp_pdu_create(ASMP_VERSION_REQUEST);
         snmp_add_var(pdu, &name, 1, 's', "3.0");
 
-        rc = snmp_synch_response(session, pdu, &response);
+        rc = asmp_synch_response(session, pdu, &response);
         if (rc != STAT_SUCCESS)
             goto free;
 
@@ -404,15 +405,7 @@ asmp_sess_setup(netsnmp_session *session)
 
         snmp_free_pdu(pdu);
     } else {
-        pdu = snmp_pdu_create(AIDP_DISCOVER_REQUEST);
-
-        rc = snmp_synch_response(session, pdu, &response);
-        if (rc != STAT_SUCCESS)
-            goto free;
-
-        snmp_free_pdu(response);
-
-        snmp_free_pdu(pdu);
+        fprintf(stderr, "aidp_sess_setup: AIDP not supported\n");
     }
 
 free:

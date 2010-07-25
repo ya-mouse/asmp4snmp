@@ -10,4 +10,7 @@ int asmp_sess_login(netsnmp_session *session,
                     const char *user, const char *passwd);
 int asmp_sess_logout(netsnmp_session *session);
 
+int asmp_synch_response(netsnmp_session * ss,
+                    netsnmp_pdu *pdu, netsnmp_pdu **response);
+
 #endif

@@ -26,7 +26,6 @@ snmp_open(netsnmp_session *in_session)
 
         /* Register ASMP Domains */
         netsnmp_asmp_ctor();
-        netsnmp_aidp_ctor();
     }
 
     session = asmp_open(in_session);
