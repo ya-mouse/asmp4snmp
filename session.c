@@ -7,6 +7,7 @@
 #include <net-snmp/library/asn1.h>
 
 #include "session.h"
+#include "aidp.h"
 
 int snmp_build();
 
@@ -253,7 +254,10 @@ _hook_build(netsnmp_session * sp,
         return rc;
     }
     /* Reserve space for payload length */
-    offset += 2;
+    if (asmp->proto == ASMP_PROTO_AIDP)
+        offset += 4;
+    else
+        offset += 2;
 
 // snmp_pdu_add_variable(pdu, name, name_len, type, value, len)
 
@@ -315,10 +319,20 @@ _hook_build(netsnmp_session * sp,
     /* Payload minus FIELD_TERM */
     sz_payload -= offset+1;
     /* Move pointer to payload length field */
-    offset -= 2;
-    pkt[offset++] = (sz_payload >> 8) & 0xff;
-    pkt[offset++] =  sz_payload & 0xff;
-    pkt[sz_payload+(offset++)+1] = ASMP_TERMINATOR;
+    if (asmp->proto == ASMP_PROTO_AIDP) {
+        offset -= 4;
+        sz_payload++;
+        pkt[offset++] = (sz_payload >> 24) & 0xff;
+        pkt[offset++] = (sz_payload >> 16) & 0xff;
+        pkt[offset++] = (sz_payload >> 8)  & 0xff;
+        pkt[offset++] =  sz_payload & 0xff;
+        pkt[sz_payload+offset] = ASMP_TERMINATOR;
+    } else {
+        offset -= 2;
+        pkt[offset++] = (sz_payload >> 8) & 0xff;
+        pkt[offset++] =  sz_payload & 0xff;
+        pkt[sz_payload+(offset++)+1] = ASMP_TERMINATOR;
+    }
 
     *len = offset+sz_payload+1;
 

@@ -1,4 +1,5 @@
 *.o
+.index
 libsnmphook.so
 core
 asmp
