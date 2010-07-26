@@ -211,7 +211,7 @@ asmp_request(struct asmp_cfg *cfg, const struct asmp_pdu *pdu, struct asmp_pdu *
     memcpy(buf+12, pdu->data, pdu->len);
     buf[12+pdu->len] = ASMP_TERMINATOR;
 
-//    xdump(pdu->data, pdu->len, ">> ");
+    xdump(buf, pdu->len+13, ">> ");
 
     cfg->meth->write(cfg, buf, 13+pdu->len);
 

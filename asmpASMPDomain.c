@@ -378,6 +378,7 @@ asmp_sess_setup(netsnmp_session *session)
         val = asmp->proto == ASMP_PROTO_ASMPS ?
                   ASMP_SESSION_SETUP_SSL_CONNECTION :
                   ASMP_SESSION_SETUP_TCP_CONNECTION;
+        fprintf(stderr, "val=%d %d\n", val, asmp->proto);
         snmp_pdu_add_variable(pdu, &name, 1, ASN_INTEGER,
                               (u_char *)&val, sizeof(val));
 
@@ -385,14 +386,10 @@ asmp_sess_setup(netsnmp_session *session)
         if (rc != STAT_SUCCESS)
             goto free;
 
-        snmp_free_pdu(response);
-
         if (asmp->proto == ASMP_PROTO_ASMPS) {
             if (_setup_ssl(asmp) < 0)
                 goto free;
         }
-
-        snmp_free_pdu(pdu);
 
         pdu = snmp_pdu_create(ASMP_VERSION_REQUEST);
         snmp_add_var(pdu, &name, 1, 's', "3.0");
@@ -401,9 +398,6 @@ asmp_sess_setup(netsnmp_session *session)
         if (rc != STAT_SUCCESS)
             goto free;
 
-        snmp_free_pdu(response);
-
-        snmp_free_pdu(pdu);
     } else {
         fprintf(stderr, "aidp_sess_setup: AIDP not supported\n");
     }

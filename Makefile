@@ -19,9 +19,9 @@ libsnmphook.so: $(OBJH)
 	$(CC) -o $@ $^ -shared -Wl,-soname,libsnmphook.so -fPIC -ldl $(LIBS)
 
 test: libsnmphook.so
-	LD_PRELOAD=$(PWD)/libsnmphook.so snmpget -v1 -c public aidp:ff02::ffff  1.3.6.1 -On -d -Dtdomain -Dnetsnmp_sockaddr_in
+#	LD_PRELOAD=$(PWD)/libsnmphook.so snmpget -v1 -c public aidp:ff02::ffff  1.3.6.1 -On -d -Dtdomain -Dnetsnmp_sockaddr_in
 #	LD_PRELOAD=$(PWD)/libsnmphook.so snmpget -v3 asmp:localhost  1.3.6.1 -On -d -Dtdomain -Dnetsnmp_sockaddr_in
-#	LD_PRELOAD=$(PWD)/libsnmphook.so snmpget -v3 asmps:localhost 1.3.6.1 -On -d -Dtdomain -Dnetsnmp_sockaddr_in
+	LD_PRELOAD=$(PWD)/libsnmphook.so snmpget -v1 -c public asmps:kvm-red-1.yandex.net 1.3.6.1 -On -d -Dtdomain -Dnetsnmp_sockaddr_in
 
 clean:
 	@rm -f asmp aidp libasmphook.so asmp.o aidp.o network.o $(OBJ) $(OBJH)

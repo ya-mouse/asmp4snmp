@@ -15,6 +15,7 @@ extern oid *netsnmp_asmpAIDPDomain;
 extern oid *netsnmp_asmpASMPDomain;
 extern oid *netsnmp_asmpASMPSDomain;
 
+static int _hook_check();
 static int _hook_parse();
 static int _hook_build();
 static int _asmp_synch_input();
@@ -62,7 +63,7 @@ asmp_open(netsnmp_session *in_session)
                             transport,
                             NULL, _hook_parse,
                             NULL, _hook_build,
-                            NULL, NULL,
+                            NULL, _hook_check,
                             NULL);
         if (session != NULL &&
             (session->flags & SNMP_FLAGS_STREAM_SOCKET)) {
@@ -121,14 +122,50 @@ asmp_synch_response(netsnmp_session * ss,
 }
 
 static int
+_hook_check(u_char * pkt, size_t len)
+{
+    size_t payload_len;
+
+    if (pkt[0] != 1) {
+        fprintf(stderr, "asmp_pdu_check: wrong packet (No SOH)\n");
+        return -1;
+    }
+
+    if (strncmp((char *)pkt+1, "AIDP", 4) &&
+        strncmp((char *)pkt+1, "ASMP", 4)) {
+        fprintf(stderr, "asmp_pdu_check: wrong packet (Bad Signature)\n");
+        return -1;
+    }
+
+    if (len < 8) {
+        fprintf(stderr, "asmp_pdu_check: wrong packet (Too short)\n");
+        return -1;
+    }
+
+    payload_len = ntohl(*((uint32_t *)(pkt+8)));
+
+    if (payload_len > len-13) {
+        fprintf(stderr,
+                "asmp_pdu_check: wrong packet (Payload length bigger than packet length: %d <> %d)\n",
+                payload_len, len-13);
+        return -1;
+    }
+
+    return len;
+}
+
+static int
 _hook_parse(netsnmp_session * sp, netsnmp_pdu * pdu,
             u_char * pkt, size_t len)
 {
+    int      i;
     u_char  *p;
     oid      val;
     uint32_t payload_len;
     netsnmp_transport *transport;
     struct asmp_connection *asmp;
+
+    fprintf(stderr, "_hook_parse called\n");
 
     transport = snmp_sess_transport(snmp_sess_pointer(sp));
     if (transport == NULL || transport->data == NULL)
@@ -136,36 +173,49 @@ _hook_parse(netsnmp_session * sp, netsnmp_pdu * pdu,
 
     asmp = transport->data;
 
-    fprintf(stderr, "_hook_parse called\n");
-
-    if (pkt[0] != 1) {
-        fprintf(stderr, "asmp_parse: wrong packet (No SOH)\n");
-        return -1;
-    }
-
-    if (strncmp((char *)pkt+1, "AIDP", 4)) {
-        fprintf(stderr, "asmp_parse: wrong packet (Bad Signature)\n");
-        return -1;
-    }
-
-    if (len < 8) {
-        fprintf(stderr, "asmp_parse: wrong packet (Too short)\n");
-        return -1;
-    }
-
     pdu->msgid   = pdu->reqid = (pkt[5] << 8) | pkt[6];
     pdu->command = pkt[7];
 
+    if (asmp->proto != ASMP_PROTO_AIDP) {
+        if (pdu->command == 0x90 || pdu->command == 0x91) {
+            int  nlen;
+            oid *name;
+
+            pdu->command = SNMP_MSG_RESPONSE;
+            if (pkt[22] != 3 || pkt[25] != 6) {
+                return 1;
+            }
+
+            p    = pkt+26;
+            nlen = ((*p << 8) | *(p+1)) / 4;
+            name = calloc(nlen, sizeof(oid));
+            fprintf(stderr, "OID detected: ");
+            for (p += 2, i=0; i<nlen; i++, p += 4) {
+                name[i] = *p     << 24 |
+                          *(p+1) << 16 |
+                          *(p+2) << 8  |
+                          *(p+3);
+                fprintf(stderr, ".%d", name[i]);
+            }
+            fprintf(stderr, "\n");
+
+            if (pkt[16] == 6 && pkt[21] == 1) {
+                snmp_pdu_add_variable(pdu, name, nlen,
+                                      SNMP_ENDOFMIBVIEW,
+                                      NULL, 0);
+            } else {
+                snmp_add_null_var(pdu, name, nlen);
+            }
+            free(name);
+            return SNMP_ERR_NOERROR;
+        }
+    }
+
     p = pkt+12;
     payload_len = ntohl(*((uint32_t *)(pkt+8)));
-    if (payload_len != len-13) {
-        fprintf(stderr,
-                "asmp_parse: wrong packet (Payload length bigger than packet length: %d <> %d)\n",
-                payload_len, len-13);
-        return -1;
-    }
     while (payload_len) {
         uint16_t vlen;
+
         if (*p == ASMP_FIELD_TERM)
             break;
         val  = *p;
@@ -218,8 +268,9 @@ _hook_build(netsnmp_session * sp,
     offset += 4;
 
     /* Fix Request ID by locally stored value */
-    pdu->reqid = ++asmp->seq;
-    pdu->msgid = ++asmp->seq;
+    pdu->msgid = pdu->reqid = ++asmp->seq;
+    if (asmp->seq == 0xffff)
+        asmp->seq = 0;
     if (pdu->version == SNMP_VERSION_3) {
         pkt[offset++] = (pdu->msgid >> 8) & 0xff;
         pkt[offset++] =  pdu->msgid & 0xff;
@@ -233,6 +284,11 @@ _hook_build(netsnmp_session * sp,
     pkt[offset++] =  asmp->seq & 0xff;
 #endif
     pkt[offset++] =  pdu->command;
+    if (asmp->proto != ASMP_PROTO_AIDP) {
+        if ((pdu->command & 0x80) == 0x80) {
+            pkt[offset-1] -= 0x90;
+        }
+    }
     if (asmp->proto == ASMP_PROTO_AIDP &&
         pdu->command == AIDP_DISCOVER_REQUEST) {
         int v = htonl(1);
@@ -254,21 +310,21 @@ _hook_build(netsnmp_session * sp,
         return rc;
     }
     /* Reserve space for payload length */
-    if (asmp->proto == ASMP_PROTO_AIDP)
-        offset += 4;
-    else
-        offset += 2;
+    offset += 4;
 
 // snmp_pdu_add_variable(pdu, name, name_len, type, value, len)
 
     if (SNMP_CMD_CONFIRMED(pdu->command)) {
-        for (sz_payload = offset, i=0, vp = pdu->variables; vp; i++, vp = vp->next_variable) {
+        for (sz_payload = offset, i=1, vp = pdu->variables; vp; i++, vp = vp->next_variable) {
             pkt[sz_payload++] = i & 0xff;
             /* Save variable's len field offset */
-            pkt[sz_payload++] = (vp->name_length >> 8) & 0xff;
-            pkt[sz_payload++] =  vp->name_length & 0xff;
+            pkt[sz_payload++] = ((vp->name_length*4+6) >> 8) & 0xff;
+            pkt[sz_payload++] =  (vp->name_length*4+6) & 0xff;
+            /* VarBind */
+            pkt[sz_payload++] = 6;
+            pkt[sz_payload++] = ((vp->name_length*4) >> 8) & 0xff;
+            pkt[sz_payload++] =  (vp->name_length*4) & 0xff;
             /* Encode variable name */
-            fprintf(stderr, "Requesting OID (%d): ", vp->name_length);
             for (k = 0; k<vp->name_length; k++) {
                 pkt[sz_payload++] = (vp->name[k] >> 24) & 0xff;
                 pkt[sz_payload++] = (vp->name[k] >> 16) & 0xff;
@@ -328,10 +384,13 @@ _hook_build(netsnmp_session * sp,
         pkt[offset++] =  sz_payload & 0xff;
         pkt[sz_payload+offset] = ASMP_TERMINATOR;
     } else {
-        offset -= 2;
-        pkt[offset++] = (sz_payload >> 8) & 0xff;
+        offset -= 4;
+        sz_payload++;
+        pkt[offset++] = (sz_payload >> 24) & 0xff;
+        pkt[offset++] = (sz_payload >> 16) & 0xff;
+        pkt[offset++] = (sz_payload >> 8)  & 0xff;
         pkt[offset++] =  sz_payload & 0xff;
-        pkt[sz_payload+(offset++)+1] = ASMP_TERMINATOR;
+        pkt[sz_payload+offset] = ASMP_TERMINATOR;
     }
 
     *len = offset+sz_payload+1;

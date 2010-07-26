@@ -34,8 +34,8 @@ main(int argc, char *argv[])
     SSLeay_add_all_algorithms();
     SSLeay_add_ssl_algorithms();
 
-//    snmp_set_do_debugging(1);
-//    debug_register_tokens("asmp");
+    snmp_set_do_debugging(1);
+    debug_register_tokens("asmp");
 
     cfg.timeout = 5000;
     cfg.is_ssl  = argc == 3 ? 1 : 0;
