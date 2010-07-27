@@ -159,9 +159,10 @@ _hook_parse(netsnmp_session * sp, netsnmp_pdu * pdu,
             u_char * pkt, size_t len)
 {
     int      i;
+    int      rc;
     u_char  *p;
     oid      val;
-    uint32_t payload_len;
+    size_t   payload_len;
     netsnmp_transport *transport;
     struct asmp_connection *asmp;
 
@@ -176,59 +177,79 @@ _hook_parse(netsnmp_session * sp, netsnmp_pdu * pdu,
     pdu->msgid   = pdu->reqid = (pkt[5] << 8) | pkt[6];
     pdu->command = pkt[7];
 
-    if (asmp->proto != ASMP_PROTO_AIDP) {
-        if (pdu->command == 0x90 || pdu->command == 0x91) {
-            int  nlen;
-            oid *name;
-
-            pdu->command = SNMP_MSG_RESPONSE;
-            if (pkt[22] != 3 || pkt[25] != 6) {
-                return 1;
-            }
-
-            p    = pkt+26;
-            nlen = ((*p << 8) | *(p+1)) / 4;
-            name = calloc(nlen, sizeof(oid));
-            fprintf(stderr, "OID detected: ");
-            for (p += 2, i=0; i<nlen; i++, p += 4) {
-                name[i] = *p     << 24 |
-                          *(p+1) << 16 |
-                          *(p+2) << 8  |
-                          *(p+3);
-                fprintf(stderr, ".%d", name[i]);
-            }
-            fprintf(stderr, "\n");
-
-            if (pkt[16] == 6 && pkt[21] == 1) {
-                snmp_pdu_add_variable(pdu, name, nlen,
-                                      SNMP_ENDOFMIBVIEW,
-                                      NULL, 0);
-            } else {
-                snmp_add_null_var(pdu, name, nlen);
-            }
-            free(name);
-            return SNMP_ERR_NOERROR;
-        }
-    }
+    if (pdu->command == 0x90 || pdu->command == 0x91)
+        rc = 1;
+    else
+        rc = SNMP_ERR_NOERROR;
 
     p = pkt+12;
     payload_len = ntohl(*((uint32_t *)(pkt+8)));
-    while (payload_len) {
+    while (payload_len > 1) {
         uint16_t vlen;
 
         if (*p == ASMP_FIELD_TERM)
             break;
+
         val  = *p;
         vlen = ntohs(*((uint16_t *)(p+1)));
-        fprintf(stderr, "Flen: %04x\n", vlen);
-        snmp_pdu_add_variable(pdu, &val, 1,
-                              ASN_OCTET_STR,
-                              p+3, vlen);
+
+        if (asmp->proto != ASMP_PROTO_AIDP) {
+            switch (val) {
+            case 1:
+            case 2:
+                fprintf(stderr, "%04x @ %02d\n", ntohs(*((uint16_t *)(p+3))), p+3-pkt);
+                break;
+
+            case 3:
+                if (pdu->command == 0x90 || pdu->command == 0x91) {
+                    int     nlen;
+                    oid    *name;
+                    u_char *pn;
+
+                    pn   = pkt+0x1a;
+                    nlen = ((*pn << 8) | *(pn+1)) / 4;
+                    name = calloc(nlen, sizeof(oid));
+                    fprintf(stderr, "OID detected: ");
+                    for (pn += 2, i=0; i<nlen; i++, pn += 4) {
+                        name[i] = *pn     << 24 |
+                                  *(pn+1) << 16 |
+                                  *(pn+2) << 8  |
+                                  *(pn+3);
+                        fprintf(stderr, ".%d", name[i]);
+                    }
+                    fprintf(stderr, "\n");
+
+                    if (pkt[16] == 6 && pkt[21] == 1) {
+                        fprintf(stderr, "MIB: %02x\n", pkt[21]);
+                        snmp_pdu_add_variable(pdu, name, nlen,
+                                              SNMP_ENDOFMIBVIEW,
+                                              NULL, 0);
+                    } else {
+                        snmp_add_null_var(pdu, name, nlen);
+                    }
+                    free(name);
+
+                    pdu->command = SNMP_MSG_RESPONSE;
+                    rc = SNMP_ERR_NOERROR;
+                }
+                break;
+
+            default:
+                break;
+            }
+        } else {
+            fprintf(stderr, "Flen: %04x\n", vlen);
+            snmp_pdu_add_variable(pdu, &val, 1,
+                                  ASN_OCTET_STR,
+                                  p+3, vlen);
+        }
+
         p += vlen+3;
         payload_len -= vlen+3;
+        fprintf(stderr, "p=%d %d\n", payload_len, vlen);
     }
 
-    return SNMP_ERR_NOERROR;
+    return rc;
 }
 
 static int
@@ -336,6 +357,7 @@ _hook_build(netsnmp_session * sp,
             /* Set variable type */
             pkt[sz_payload++] = vp->type & 0xff;
             /* Encode variable */
+            fprintf(stderr, "type=%02x %02d\n", vp->type, vp->type);
             switch (vp->type) {
                 case ASN_INTEGER:
                     break;
