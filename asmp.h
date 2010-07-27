@@ -74,6 +74,7 @@ struct asmp_connection {
     struct asmpnet_meth *tcp_meth;
     void    *addr_pair;
     int      proto;
+    char    *user;
     uint32_t seq;
 };
 

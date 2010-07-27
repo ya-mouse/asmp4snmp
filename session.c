@@ -96,10 +96,19 @@ asmp_sess_login(netsnmp_session *session,
     int status;
     netsnmp_pdu *pdu;
     netsnmp_pdu *response;
+    netsnmp_transport *transport;
+    struct asmp_connection *asmp;
+
+    transport = snmp_sess_transport(snmp_sess_pointer(session));
+    if (transport == NULL || transport->data == NULL)
+        return -1;
+
+    asmp = transport->data;
 
     pdu = snmp_pdu_create(ASMP_LOGIN_REQUEST);
     snmp_add_var(pdu, &val, 1, 's', user);
     snmp_add_var(pdu, &val, 1, 's', passwd);
+    asmp->user = strdup(user);
 
     status = asmp_synch_response(session, pdu, &response);
 
@@ -197,17 +206,17 @@ _hook_parse(netsnmp_session * sp, netsnmp_pdu * pdu,
         if (asmp->proto != ASMP_PROTO_AIDP) {
             switch (val) {
             case 1:
-                if (pdu->command == 0x90 || pdu->command == 0x91)
+                if (pdu->command >= 0x90 && pdu->command <= 0x92)
                     pdu->errstat = ntohs(*((uint16_t *)(p+3)));
                 break;
 
             case 2:
-                if (pdu->command == 0x90 || pdu->command == 0x91)
+                if (pdu->command >= 0x90 && pdu->command <= 0x92)
                     pdu->errindex = ntohs(*((uint16_t *)(p+3)));
                 break;
 
             case 3:
-                if (pdu->command == 0x90 || pdu->command == 0x91) {
+                if (pdu->command >= 0x90 && pdu->command <= 0x92) {
                     int     nlen;
                     oid    *name = NULL;
                     netsnmp_variable_list *var = NULL;
@@ -325,6 +334,8 @@ _hook_build(netsnmp_session * sp,
 
     asmp = transport->data;
 
+    memset(pkt, 0, 0x100);
+
     pkt[offset++] = ASMP_SOH;
     switch (asmp->proto) {
         case ASMP_PROTO_AIDP:
@@ -389,13 +400,9 @@ _hook_build(netsnmp_session * sp,
 // snmp_pdu_add_variable(pdu, name, name_len, type, value, len)
 
     if (SNMP_CMD_CONFIRMED(pdu->command)) {
-        pkt[sz_payload++] = i & 0xff;
-        /* Reserve space for variables' len field offset */
-        sz_payload += 2;
-//        pkt[sz_payload++] = ((vp->name_length*4+6) >> 8) & 0xff;
-//        pkt[sz_payload++] =  (vp->name_length*4+6) & 0xff;
-
-        for (sz_payload = offset, i=1, vp = pdu->variables; vp; i++, vp = vp->next_variable) {
+        pkt[offset] = 1;
+        /* Reserve space (2 bytes) for variables' len field offset */
+        for (sz_payload = offset+3, i=1, vp = pdu->variables; vp; i++, vp = vp->next_variable) {
             /* VarBind */
             pkt[sz_payload++] = 6;
             pkt[sz_payload++] = ((vp->name_length*4) >> 8) & 0xff;
@@ -411,17 +418,49 @@ _hook_build(netsnmp_session * sp,
             pkt[sz_payload++] = vp->type & 0xff;
             /* Encode variable */
             switch (vp->type) {
-                case ASN_INTEGER:
+                case ASN_INTEGER: {
+                        int32_t v = htonl(*vp->val.integer);
+                        pkt[sz_payload++] = 0;
+                        pkt[sz_payload++] = 4;
+                        memcpy(pkt+sz_payload, (u_char *)&v, 4);
+                        sz_payload += 4;
+                    }
                     break;
 
                 case ASN_OCTET_STR:
+                    if (vp->val.string == NULL || *vp->val.string == '\0') {
+                        memset(pkt+sz_payload, 0, 2);
+                    } else {
+                        uint16_t l;
+                        l = htons(strlen((char *)vp->val.string));
+                        memcpy(pkt+sz_payload, (u_char *)&l, 2);
+                        memcpy(pkt+sz_payload+2, vp->val.string, ntohs(l));
+                        sz_payload += ntohs(l);
+                    }
+                    sz_payload += 2;
                     break;
 
                 case ASN_NULL:
                     memset(pkt+sz_payload, 0, 2);
                     sz_payload += 2;
                     break;
+
+                default:
+                    fprintf(stderr, "Unk: %d,%02x\n", vp->type, vp->type);
+                    break;
             }
+        }
+        pkt[offset+1] = ((sz_payload-offset-3) >> 8) & 0xff;
+        pkt[offset+2] =  (sz_payload-offset-3) & 0xff;
+        /* Special case for SET command to send Username */
+        if (pdu->command == SNMP_MSG_SET) {
+            i = strlen(asmp->user);
+            pkt[sz_payload++] = 2;
+            pkt[sz_payload++] = (i >> 8) & 0xff;
+            pkt[sz_payload++] =  i & 0xff;
+            if (i > 0)
+                memcpy(pkt+sz_payload, asmp->user, i);
+            sz_payload += i;
         }
     } else {
         for (sz_payload = offset, i=1, vp = pdu->variables; vp; i++, vp = vp->next_variable) {
@@ -445,9 +484,9 @@ _hook_build(netsnmp_session * sp,
         }
     }
 
-    pkt[sz_payload++] = ASMP_FIELD_TERM;
     /* Payload minus FIELD_TERM */
-    sz_payload -= offset+1;
+    pkt[sz_payload] = ASMP_FIELD_TERM;
+    sz_payload -= offset;
     /* Move pointer to payload length field */
     offset -= 4;
     sz_payload++;
