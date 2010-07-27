@@ -378,7 +378,6 @@ asmp_sess_setup(netsnmp_session *session)
         val = asmp->proto == ASMP_PROTO_ASMPS ?
                   ASMP_SESSION_SETUP_SSL_CONNECTION :
                   ASMP_SESSION_SETUP_TCP_CONNECTION;
-        fprintf(stderr, "val=%d %d\n", val, asmp->proto);
         snmp_pdu_add_variable(pdu, &name, 1, ASN_INTEGER,
                               (u_char *)&val, sizeof(val));
 

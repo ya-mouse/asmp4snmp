@@ -13,6 +13,7 @@
 #define ASMP_LOGOUT_REQUEST               0x02
 #define ASMP_SNMP_GET_REQUEST             0x10
 #define ASMP_SNMP_GETNEXT_REQUEST         0x11
+#define ASMP_SNMP_SET_REQUEST             0x12
 #define ASMP_SESSION_SETUP_REQUEST        0x30
 #define ASMP_VERSION_REQUEST              0x31
 #define ASMP_SESSION_SETUP_REQUEST_FIELD_CONN_TYPE 0x01

@@ -69,13 +69,16 @@ asmp_open(netsnmp_session *in_session)
             (session->flags & SNMP_FLAGS_STREAM_SOCKET)) {
             if (asmp_sess_setup(session) != 0)
                 goto free;
-            if (asmp_sess_login(session, "", "") != 0)
+            if (asmp_sess_login(session,
+                    ((struct asmp_connection *)transport->data)->proto ==
+                        ASMP_PROTO_ASMPS ? "Admin" : "",
+                    "") != 0) {
                 goto free;
+            }
             fprintf(stderr, "ASMP initialized\n");
         }
     } else {
         session = NULL;
-        fprintf(stderr, "SNMPv is not 3. ASMP is not initialized\n");
     }
 
     return session;
@@ -162,11 +165,9 @@ _hook_parse(netsnmp_session * sp, netsnmp_pdu * pdu,
     int      rc;
     u_char  *p;
     oid      val;
-    size_t   payload_len;
+    int      payload_len;
     netsnmp_transport *transport;
     struct asmp_connection *asmp;
-
-    fprintf(stderr, "_hook_parse called\n");
 
     transport = snmp_sess_transport(snmp_sess_pointer(sp));
     if (transport == NULL || transport->data == NULL)
@@ -196,39 +197,94 @@ _hook_parse(netsnmp_session * sp, netsnmp_pdu * pdu,
         if (asmp->proto != ASMP_PROTO_AIDP) {
             switch (val) {
             case 1:
+                if (pdu->command == 0x90 || pdu->command == 0x91)
+                    pdu->errstat = ntohs(*((uint16_t *)(p+3)));
+                break;
+
             case 2:
-                fprintf(stderr, "%04x @ %02d\n", ntohs(*((uint16_t *)(p+3))), p+3-pkt);
+                if (pdu->command == 0x90 || pdu->command == 0x91)
+                    pdu->errindex = ntohs(*((uint16_t *)(p+3)));
                 break;
 
             case 3:
                 if (pdu->command == 0x90 || pdu->command == 0x91) {
                     int     nlen;
-                    oid    *name;
-                    u_char *pn;
+                    oid    *name = NULL;
+                    netsnmp_variable_list *var = NULL;
 
-                    pn   = pkt+0x1a;
-                    nlen = ((*pn << 8) | *(pn+1)) / 4;
-                    name = calloc(nlen, sizeof(oid));
-                    fprintf(stderr, "OID detected: ");
-                    for (pn += 2, i=0; i<nlen; i++, pn += 4) {
-                        name[i] = *pn     << 24 |
-                                  *(pn+1) << 16 |
-                                  *(pn+2) << 8  |
-                                  *(pn+3);
-                        fprintf(stderr, ".%d", name[i]);
+                    p += 3;
+                    if (*p != ASN_OBJECT_ID) {
+                        fprintf(stderr, "Wrong VarBind data\n");
+                        return rc;
                     }
-                    fprintf(stderr, "\n");
+                    while (vlen > 0) {
+                        nlen = (*(p+1) << 8 | *(p+2));
 
-                    if (pkt[16] == 6 && pkt[21] == 1) {
-                        fprintf(stderr, "MIB: %02x\n", pkt[21]);
-                        snmp_pdu_add_variable(pdu, name, nlen,
-                                              SNMP_ENDOFMIBVIEW,
-                                              NULL, 0);
-                    } else {
-                        snmp_add_null_var(pdu, name, nlen);
+                        switch (*p) {
+                        case ASN_OBJECT_ID:
+                            name = calloc(1, nlen);
+                            //fprintf(stderr, "OID: ");
+                            for (p += 3, i=0; i<nlen/sizeof(oid); i++, p += 4) {
+                                name[i] = *p     << 24 |
+                                          *(p+1) << 16 |
+                                          *(p+2) << 8  |
+                                          *(p+3);
+                                //fprintf(stderr, ".%d", name[i]);
+                            }
+                            //fprintf(stderr, "\n");
+                            /* move pointer back */
+                            p -= nlen+3;
+#if 0
+                            if (pkt[16] == 6 && pkt[21] == 1)
+                                 snmp_pdu_add_variable(pdu, name, nlen,
+                                                       SNMP_ENDOFMIBVIEW,
+                                                       NULL, 0);
+#endif
+                            if (var == NULL) {
+                                /* First OID is name OID */
+                                var = snmp_add_null_var(pdu, name, nlen/sizeof(oid));
+                            } else {
+                                /* Second OID is value OID */
+                                var->type = *p;
+                                snmp_set_var_value(var, (u_char *)name, nlen);
+                            }
+                            free(name);
+                            break;
+
+                        case ASN_COUNTER:
+                        case ASN_TIMETICKS:
+                        case ASN_GAUGE:
+                        case ASN_INTEGER: {
+                                int32_t v;
+                                v = ntohl(*((int32_t *)(p+3)));
+                                var->type = *p;
+                                snmp_set_var_value(var, (u_char *)&v, nlen);
+                            }
+                            break;
+
+                        case ASN_OCTET_STR:
+                            var->type = *p;
+                            snmp_set_var_value(var, p+3, nlen);
+                            break;
+
+                        case ASN_IPADDRESS:
+                            var->type = *p;
+                            snmp_set_var_value(var, p+3, nlen);
+                            break;
+
+                        case ASN_NULL:
+                            var->type = *p;
+                            snmp_set_var_value(var, NULL, 0);
+                            break;
+
+                        default:
+                            fprintf(stderr, "AAA: %d\n", *p);
+                            break;
+                        }
+                        p += nlen+3;
+                        vlen -= nlen+3;
+                        payload_len -= nlen+3;
                     }
-                    free(name);
-
                     pdu->command = SNMP_MSG_RESPONSE;
                     rc = SNMP_ERR_NOERROR;
                 }
@@ -246,7 +302,6 @@ _hook_parse(netsnmp_session * sp, netsnmp_pdu * pdu,
 
         p += vlen+3;
         payload_len -= vlen+3;
-        fprintf(stderr, "p=%d %d\n", payload_len, vlen);
     }
 
     return rc;
@@ -263,8 +318,6 @@ _hook_build(netsnmp_session * sp,
     netsnmp_variable_list *vp;
     netsnmp_transport *transport;
     struct asmp_connection *asmp;
-
-    fprintf(stderr, "_hook_build called: %x\n", pdu->command);
 
     transport = snmp_sess_transport(snmp_sess_pointer(sp));
     if (transport == NULL || transport->data == NULL)
@@ -299,17 +352,17 @@ _hook_build(netsnmp_session * sp,
         pkt[offset++] = (pdu->reqid >> 8) & 0xff;
         pkt[offset++] =  pdu->reqid & 0xff;
     }
-#if 0
-    asmp->seq++;
-    pkt[offset++] = (asmp->seq >> 8) & 0xff;
-    pkt[offset++] =  asmp->seq & 0xff;
-#endif
+
     pkt[offset++] =  pdu->command;
     if (asmp->proto != ASMP_PROTO_AIDP) {
-        if ((pdu->command & 0x80) == 0x80) {
-            pkt[offset-1] -= 0x90;
-        }
+        if (pdu->command == SNMP_MSG_GET)
+            pkt[offset-1] = ASMP_SNMP_GET_REQUEST;
+        else if (pdu->command == SNMP_MSG_GETNEXT)
+            pkt[offset-1] = ASMP_SNMP_GETNEXT_REQUEST;
+        else if (pdu->command == SNMP_MSG_SET)
+            pkt[offset-1] = ASMP_SNMP_SET_REQUEST;
     }
+
     if (asmp->proto == ASMP_PROTO_AIDP &&
         pdu->command == AIDP_DISCOVER_REQUEST) {
         int v = htonl(1);
@@ -336,11 +389,13 @@ _hook_build(netsnmp_session * sp,
 // snmp_pdu_add_variable(pdu, name, name_len, type, value, len)
 
     if (SNMP_CMD_CONFIRMED(pdu->command)) {
+        pkt[sz_payload++] = i & 0xff;
+        /* Reserve space for variables' len field offset */
+        sz_payload += 2;
+//        pkt[sz_payload++] = ((vp->name_length*4+6) >> 8) & 0xff;
+//        pkt[sz_payload++] =  (vp->name_length*4+6) & 0xff;
+
         for (sz_payload = offset, i=1, vp = pdu->variables; vp; i++, vp = vp->next_variable) {
-            pkt[sz_payload++] = i & 0xff;
-            /* Save variable's len field offset */
-            pkt[sz_payload++] = ((vp->name_length*4+6) >> 8) & 0xff;
-            pkt[sz_payload++] =  (vp->name_length*4+6) & 0xff;
             /* VarBind */
             pkt[sz_payload++] = 6;
             pkt[sz_payload++] = ((vp->name_length*4) >> 8) & 0xff;
@@ -351,13 +406,10 @@ _hook_build(netsnmp_session * sp,
                 pkt[sz_payload++] = (vp->name[k] >> 16) & 0xff;
                 pkt[sz_payload++] = (vp->name[k] >>  8) & 0xff;
                 pkt[sz_payload++] =  vp->name[k] & 0xff;
-                fprintf(stderr, ".%d", (int)vp->name[k]);
             }
-            fprintf(stderr, "\n");
             /* Set variable type */
             pkt[sz_payload++] = vp->type & 0xff;
             /* Encode variable */
-            fprintf(stderr, "type=%02x %02d\n", vp->type, vp->type);
             switch (vp->type) {
                 case ASN_INTEGER:
                     break;
@@ -397,23 +449,13 @@ _hook_build(netsnmp_session * sp,
     /* Payload minus FIELD_TERM */
     sz_payload -= offset+1;
     /* Move pointer to payload length field */
-    if (asmp->proto == ASMP_PROTO_AIDP) {
-        offset -= 4;
-        sz_payload++;
-        pkt[offset++] = (sz_payload >> 24) & 0xff;
-        pkt[offset++] = (sz_payload >> 16) & 0xff;
-        pkt[offset++] = (sz_payload >> 8)  & 0xff;
-        pkt[offset++] =  sz_payload & 0xff;
-        pkt[sz_payload+offset] = ASMP_TERMINATOR;
-    } else {
-        offset -= 4;
-        sz_payload++;
-        pkt[offset++] = (sz_payload >> 24) & 0xff;
-        pkt[offset++] = (sz_payload >> 16) & 0xff;
-        pkt[offset++] = (sz_payload >> 8)  & 0xff;
-        pkt[offset++] =  sz_payload & 0xff;
-        pkt[sz_payload+offset] = ASMP_TERMINATOR;
-    }
+    offset -= 4;
+    sz_payload++;
+    pkt[offset++] = (sz_payload >> 24) & 0xff;
+    pkt[offset++] = (sz_payload >> 16) & 0xff;
+    pkt[offset++] = (sz_payload >> 8)  & 0xff;
+    pkt[offset++] =  sz_payload & 0xff;
+    pkt[sz_payload+offset] = ASMP_TERMINATOR;
 
     *len = offset+sz_payload+1;
 
@@ -426,8 +468,6 @@ _asmp_synch_input(int op,
                  int reqid, netsnmp_pdu *pdu, void *magic)
 {
     struct synch_state *state = (struct synch_state *) magic;
-
-    fprintf(stderr, "reqid %d <> %d\n", reqid, state->reqid);
 
     if (reqid != state->reqid)
         return 0;
