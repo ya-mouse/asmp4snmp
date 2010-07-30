@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
-<xsl:output method="text"/>
+<xsl:output method="text" indent="no"/>
 
 <xsl:template match="/mib/node">
 DSR-MIB DEFINITIONS ::= BEGIN
@@ -121,14 +121,10 @@ END
     <xsl:param name="syntax"/>
     <xsl:param name="type"/>
 
-<xsl:value-of select="@name"/> OBJECT-<xsl:value-of select="$type"/><xsl:text>
-</xsl:text>
-    <xsl:if test="$objects != ''">OBJECTS { <xsl:value-of select="$objects"/> }</xsl:if><xsl:text>
-</xsl:text>
-    <xsl:if test="$syntax != ''">SYNTAX <xsl:value-of select="$syntax"/></xsl:if><xsl:text>
-</xsl:text>
-    <xsl:if test="$access != ''">MAX-ACCESS <xsl:value-of select="$access"/></xsl:if><xsl:text>
-</xsl:text>
+<xsl:value-of select="@name"/> OBJECT-<xsl:value-of select="$type"/>
+    <xsl:if test="$objects != ''">&#xA;    OBJECTS { <xsl:value-of select="$objects"/> }</xsl:if>
+    <xsl:if test="$syntax != ''">&#xA;    SYNTAX <xsl:value-of select="$syntax"/></xsl:if>
+    <xsl:if test="$access != ''">&#xA;    MAX-ACCESS <xsl:value-of select="$access"/></xsl:if>
     STATUS <xsl:value-of select="$status"/>
     DESCRIPTION
         "<xsl:value-of select="@name"/>"
