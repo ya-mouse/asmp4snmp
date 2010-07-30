@@ -1,5 +1,6 @@
 *.o
 .index
+DSR-MIB.txt
 libsnmphook.so
 core
 asmp

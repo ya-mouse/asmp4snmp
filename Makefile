@@ -7,7 +7,10 @@ LIBS   = -lssl -lsnmp
 %.o: %.c
 	$(CC) -c $(CFLAGS) $<
 
-all: asmp aidp libsnmphook.so
+all: asmp aidp libsnmphook.so DSR-MIB.txt
+
+%.txt: xml2mib.xslt %.xml
+	xsltproc $^ > $@
 
 asmp: asmp.o network.o $(OBJ)
 	$(CC) -o $@ $^ $(LIBS) -g
