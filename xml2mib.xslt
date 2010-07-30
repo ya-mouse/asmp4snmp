@@ -3,7 +3,7 @@
 <xsl:output method="text" indent="no"/>
 
 <xsl:template match="/mib/node">
-DSR-MIB DEFINITIONS ::= BEGIN
+<xsl:value-of select="../@name"/> DEFINITIONS ::= BEGIN
 
 IMPORTS
     MODULE-IDENTITY, OBJECT-TYPE, IpAddress,
@@ -47,7 +47,7 @@ END
 
     <xsl:variable name="status">
         <xsl:choose>
-            <xsl:when test="@status = 'unknown' or @status = 'mandatory'">current</xsl:when>
+            <xsl:when test="@status = 'unknown'">current</xsl:when>
             <xsl:otherwise>
                 <xsl:value-of select="@status"/>
             </xsl:otherwise>
@@ -66,8 +66,8 @@ END
         <xsl:when test="@type = 'node' or @type = 'sequenceOfType'">
             <xsl:call-template name="print-node">
                 <xsl:with-param name="parent" select="$parent"/>
-                <xsl:with-param name="objects" select="objects"/>
-                <xsl:with-param name="status" select="$status"/>
+                <xsl:with-param name="objects" select="$objects"/>
+                <xsl:with-param name="status">current</xsl:with-param>
                 <xsl:with-param name="access"/>
                 <xsl:with-param name="type">GROUP</xsl:with-param>
                 <xsl:with-param name="syntax"/>
@@ -76,7 +76,7 @@ END
         <xsl:when test="@type = 'int'">
             <xsl:call-template name="print-node">
                 <xsl:with-param name="parent" select="$parent"/>
-                <xsl:with-param name="objects" select="objects"/>
+                <xsl:with-param name="objects" select="$objects"/>
                 <xsl:with-param name="status" select="$status"/>
                 <xsl:with-param name="access" select="$access"/>
                 <xsl:with-param name="type">TYPE</xsl:with-param>
@@ -86,7 +86,7 @@ END
         <xsl:when test="@type = 'ipAddress'">
             <xsl:call-template name="print-node">
                 <xsl:with-param name="parent" select="$parent"/>
-                <xsl:with-param name="objects" select="objects"/>
+                <xsl:with-param name="objects" select="$objects"/>
                 <xsl:with-param name="status" select="$status"/>
                 <xsl:with-param name="access" select="$access"/>
                 <xsl:with-param name="type">TYPE</xsl:with-param>
@@ -96,7 +96,7 @@ END
         <xsl:when test="@type = 'ascii' or @type = 'utf8' or @type = 'byte[]'">
             <xsl:call-template name="print-node">
                 <xsl:with-param name="parent" select="$parent"/>
-                <xsl:with-param name="objects" select="objects"/>
+                <xsl:with-param name="objects" select="$objects"/>
                 <xsl:with-param name="status" select="$status"/>
                 <xsl:with-param name="access" select="$access"/>
                 <xsl:with-param name="type">TYPE</xsl:with-param>
