@@ -427,6 +427,14 @@ _hook_build(netsnmp_session * sp,
                     }
                     break;
 
+                case ASN_IPADDRESS:
+                    if (vp->val_len != 4) {
+                        fprintf(stderr,
+                                "asmp_pkt_build: ASN_IPADDRESS"
+                                " is not length of 4 (%d)",
+                                vp->val_len);
+                        return -1;
+                    }
                 case ASN_OCTET_STR:
                     if (vp->val.string == NULL || *vp->val.string == '\0') {
                         memset(pkt+sz_payload, 0, 2);
