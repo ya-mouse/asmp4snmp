@@ -71,7 +71,7 @@ asmp_open(netsnmp_session *in_session)
                 goto free;
             if (asmp_sess_login(session,
                     ((struct asmp_connection *)transport->data)->proto ==
-                        ASMP_PROTO_ASMPS ? "Admin" : "",
+                        ASMP_PROTO_ASMPS ? session->securityName : "",
                     "") != 0) {
                 goto free;
             }
@@ -106,9 +106,9 @@ asmp_sess_login(netsnmp_session *session,
     asmp = transport->data;
 
     pdu = snmp_pdu_create(ASMP_LOGIN_REQUEST);
-    snmp_add_var(pdu, &val, 1, 's', user);
-    snmp_add_var(pdu, &val, 1, 's', passwd);
-    asmp->user = strdup(user);
+    snmp_add_var(pdu, &val, 1, 's', user   == NULL ? "" : user);
+    snmp_add_var(pdu, &val, 1, 's', passwd == NULL ? "" : passwd);
+    asmp->user = user == NULL ? NULL : strdup(user);
 
     status = asmp_synch_response(session, pdu, &response);
 
