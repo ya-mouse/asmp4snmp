@@ -62,6 +62,10 @@ END
         </xsl:choose>
     </xsl:variable>
 
+    <xsl:variable name="constraint">
+        <xsl:for-each select="symbol"><xsl:if test="position()!=1">, </xsl:if><xsl:value-of select="@name"/>(<xsl:value-of select="@value"/>)</xsl:for-each>
+    </xsl:variable>
+
     <xsl:choose>
         <xsl:when test="@type = 'node' or @type = 'sequenceOfType'">
             <xsl:call-template name="print-node">
@@ -80,7 +84,7 @@ END
                 <xsl:with-param name="status" select="$status"/>
                 <xsl:with-param name="access" select="$access"/>
                 <xsl:with-param name="type">TYPE</xsl:with-param>
-                <xsl:with-param name="syntax">INTEGER</xsl:with-param>
+                <xsl:with-param name="syntax">INTEGER <xsl:if test="$constraint != ''">{ <xsl:value-of select="$constraint"/> }</xsl:if></xsl:with-param>
             </xsl:call-template>
         </xsl:when>
         <xsl:when test="@type = 'ipAddress'">
