@@ -108,7 +108,7 @@ asmp_sess_login(netsnmp_session *session,
     pdu = snmp_pdu_create(ASMP_LOGIN_REQUEST);
     snmp_add_var(pdu, &val, 1, 's', user   == NULL ? "" : user);
     snmp_add_var(pdu, &val, 1, 's', passwd == NULL ? "" : passwd);
-    asmp->user = user == NULL ? NULL : strdup(user);
+    asmp->user = user == NULL ? "" : strdup(user);
 
     status = asmp_synch_response(session, pdu, &response);
 
